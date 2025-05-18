@@ -1,0 +1,10 @@
+generate website content for african nordic innovationincluding the events page, blog page
+verify screen
+provider bookings, change to subscription creen -fixed, navigate properly
+phone no 
+location
+unsubscribe not working-fixed
+toaster 
+withdrawal-fixed
+link the whole wallet card
+withdrawal
