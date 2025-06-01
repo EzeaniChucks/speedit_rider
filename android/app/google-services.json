@@ -5,50 +5,7 @@
     "storage_bucket": "speedit-v1.firebasestorage.app"
   },
   "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:907006300440:android:0a761bd8c93e33a8730e6d",
-        "android_client_info": {
-          "package_name": "com.glovoapp"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "907006300440-niks6bhojm8cfut6l1a386n2pgo495pv.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.glovoapp",
-            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
-          }
-        },
-        {
-          "client_id": "907006300440-dskbam26l689c0i3c790vorrtsknuthd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDJZkbgyY44RFDbcmZgAz2d04ELuxJUIJ4"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "907006300440-dskbam26l689c0i3c790vorrtsknuthd.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "907006300440-n7nps15m4s15oecflmd3fe3iqlpnicm1.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.GlovoApp"
-              }
-            }
-          ]
-        }
-      }
-    },
+   
     {
       "client_info": {
         "mobilesdk_app_id": "1:907006300440:android:c740b8257b184a3d730e6d",
