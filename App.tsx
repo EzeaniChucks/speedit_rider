@@ -29,11 +29,13 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <NativeBaseProvider>    
+     
+    
+    <>
     {/* <StatusBar hidden={true} /> */}
     <RootNavigation />
    
-    </NativeBaseProvider>
+  </>
   );
 }
 

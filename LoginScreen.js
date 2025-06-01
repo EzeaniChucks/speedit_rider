@@ -1,114 +1,216 @@
-import { Box, Icon, Input, Pressable } from 'native-base';
-import React, { useState } from 'react';
-import { SafeAreaView, Text, TextInput, TouchableOpacity, View, StyleSheet, StatusBar } from 'react-native';
-import MaterialIcons from '@react-native-vector-icons/fontawesome6';
-import Icons from '@react-native-vector-icons/ant-design';
-const SignInScreen = ({navigation}) => {
+// SignInScreen.js
+import { Box } from 'native-base'; // Removed Icon, Input, Pressable
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, Text, TouchableOpacity, View, StyleSheet, StatusBar, ActivityIndicator, Alert } from 'react-native';
+// MaterialIcons import was likely for the native-base Icon, PaperTextInput.Icon uses MaterialCommunityIcons by default for string names
+// import MaterialIcons from '@react-native-vector-icons/ionicons'; // This can be removed if only used for the password icon
+import AntIcons from '@react-native-vector-icons/ant-design';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, clearError, resetAuthState } from './store/authSlice'; // Adjust path
+import { TextInput as PaperTextInput } from 'react-native-paper'; // Import PaperTextInput
+
+const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [userCompletedSetup, setUserCompletedSetup] = useState(true);// This should be set based on your app's logic to check if the user has completed setup
+
+  const dispatch = useDispatch();
+  const { loading, error, isAuthenticated, userInfo } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      dispatch(resetAuthState());
+    });
+    return unsubscribe;
+  }, [navigation, dispatch]);
+
+  // Your useEffect for navigation based on isAuthenticated and userInfo
+  // Make sure your userInfo structure and setup completion logic is correct
+  useEffect(() => {
+    if (isAuthenticated && userInfo) {
+      // Example: Check if essential profile/vehicle information is present
+      const isProfileComplete = userInfo.vehicleType && 
+                                userInfo.vehicleDetails?.plateNumber &&
+                                (userInfo.verificationStatus === 'verified' || userInfo.verificationStatus === 'approved');
+
+      console.log("User Info for setup check:", userInfo);
+      console.log("Is setup considered complete?", isProfileComplete);
+
+      if (isProfileComplete) {
+        navigation.replace('BottomTabNavigator');
+      } else {
+        // If any crucial info is missing or verification isn't 'verified'/'approved'
+        // Navigate to a screen where the rider can complete their profile/vehicle details/verification
+        navigation.replace('BecomeRiderScreen'); // Or e.g., 'CompleteProfileScreen', 'VerificationScreen'
+      }
+    }
+  }, [isAuthenticated, userInfo, navigation]);
+
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Login Error', error.message || 'An unexpected error occurred.');
+      dispatch(clearError());
+    }
+  }, [error, dispatch]);
 
   const handleContinue = () => {
-    // Handle sign-in logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
-    // navigation.navigate('BottomTabNavigator');
-   userCompletedSetup?navigation.navigate('BottomTabNavigator'): navigation.navigate('BecomeRiderScreen');
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Validation Error', 'Email and password are required.');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+        Alert.alert("Validation Error", "Please enter a valid email address.");
+        return;
+    }
+    dispatch(loginUser({ email, password }));
   };
+
+  const handleGoBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      // Fallback if there's no screen to go back to (e.g., deep link directly to SignIn)
+      navigation.navigate('CreateAccountScreen'); // Or your primary entry point
+    }
+  };
+
+  const isButtonDisabled =  !email.trim() || !password.trim();
+
+  // Common theme for PaperTextInput to match button's borderRadius and control colors
+  const paperInputTheme = { 
+    roundness: 8, // Matches button borderRadius
+    colors: { 
+      // text: '#000', // Default text color
+      // placeholder: '#666', // Default placeholder color for outlined mode
+      // primary: 'teal', // Color for focused outline and label
+      // background: '#f0f0f0' // If you want a light background for the input field itself
+    }
+  }; 
+  const activeOutlineColor = '#FFAB40'; // Color for the outline when focused
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle={'light-content'} />
-      <Box flexDirection="row" justifyContent="space-between" alignItems="center" marginBottom={20}>
-      <Icons name="arrow-left" size={30} color='teal' />
+      <StatusBar barStyle={'dark-content'} />
+      <Box flexDirection="row" justifyContent="flex-start" alignItems="center" marginBottom={20} width="100%">
+        <TouchableOpacity onPress={handleGoBack} style={{ padding: 5 }}>
+            <AntIcons name="arrowleft" size={30} color='teal' />
+        </TouchableOpacity>
       </Box>
       <Text style={styles.title}>Sign in</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
+      <PaperTextInput
+        label="E-mail"
         value={email}
         onChangeText={setEmail}
-        keyboardType="email-address"
+        keyboardType="email-address" // More specific for email
         autoCapitalize="none"
+        mode="outlined" // Gives a bordered appearance
+        style={[styles.inputStyle, { marginBottom: 20 }]} // NativeBase marginBottom={5} is approx 20px
+        theme={paperInputTheme}
+        outlineColor="#ccc" // Default outline color
+        activeOutlineColor={activeOutlineColor} // Outline color on focus
+        // dense // Uncomment if you want a more compact input (height ~48dp)
       />
-      
-      <View style={styles.passwordContainer}>
-      <Input h={50} w={{ base: "100%", md: "300"}} borderRadius={8} borderWidth={1} borderColor="gray" value={password} onChangeText={setPassword} 
- paddingY={10} marginBottom={10}
-  type={showPassword ? "text" : "password"} InputRightElement={<Pressable onPress={() => setShowPassword(!showPassword)}>
-            <Icon as={<MaterialIcons name={showPassword ? "eye" : "eye-slash"} />} size={5} mr="2" color="muted.400" />
-          </Pressable>} placeholder="Password" />
-      </View>
 
-      <TouchableOpacity>
+      <PaperTextInput
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={!showPassword}
+        mode="outlined"
+        style={[styles.inputStyle, { marginBottom: 12 }]} // NativeBase marginBottom={3} is approx 12px
+        theme={paperInputTheme}
+        outlineColor="#ccc"
+        activeOutlineColor={activeOutlineColor}
+        right={
+          <PaperTextInput.Icon 
+            icon={showPassword ? "eye-off" : "eye"} // Corrected icon logic
+            onPress={() => setShowPassword(!showPassword)}
+            color="grey" // Or use theme color: paperInputTheme.colors.placeholder
+          />
+        }
+        // dense // Uncomment if you want a more compact input
+      />
+
+      <TouchableOpacity onPress={() => Alert.alert("Forgot Password", "Forgot password functionality to be implemented.")}>
         <Text style={styles.forgotPassword}>Forgot password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
+      <TouchableOpacity
+        style={[styles.continueButton, isButtonDisabled && styles.disabledButton]}
+        onPress={handleContinue}
+        disabled={isButtonDisabled || !loading} // Also disable if loading
+      >
+        {!loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Continue</Text>
+        )}
       </TouchableOpacity>
 
-     
+      <TouchableOpacity onPress={() => navigation.navigate('CreateAccountScreen')} style={styles.createAccountLink}>
+        <Text style={styles.createAccountText}>
+            Don't have an account? <Text style={styles.link}>Sign Up</Text>
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-   
+    flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#fff',height:'100%'
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
+    color: '#333',
   },
-  input: {
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+  // Style for PaperTextInput if you need to override default height or add specific background
+  inputStyle: {
+    // height: 50, // If you want to force a specific height similar to native-base. Paper's default outlined is around 56dp, dense is ~48dp.
+    backgroundColor: '#fff', // Or a light gray like '#f9f9f9' if you prefer a filled look
+    // For PaperTextInput, padding is usually handled by its internal structure and `contentStyle` prop if needed.
   },
-  inputpassword: {
-    height: 50,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,width:300
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',width:'100%'
-  },
-  eyeIcon: {
-    fontSize: 24,
-    marginLeft: 10,
-  },
+  // inputNativeBase style is no longer needed as it was for native-base Input
   forgotPassword: {
-    color: 'green',
+    color: 'teal',
     marginBottom: 20,
+    textAlign: 'right',
+    fontSize: 14,
   },
   continueButton: {
-    backgroundColor: 'lightgray',
-    borderRadius: 8,
+    backgroundColor: '#FFAB40',
+    borderRadius: 8, // Used this for PaperTextInput theme.roundness
     alignItems: 'center',
-    padding: 15,
+    paddingVertical: 15,
+    width: '100%',
+  },
+  disabledButton: {
+    backgroundColor: 'lightgray',
   },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#fff',
   },
-  version: {
-    marginTop: 20,
-    textAlign: 'center',
+  createAccountLink: {
+      marginTop: 30,
+      alignItems: 'center',
   },
+  createAccountText: {
+      fontSize: 14,
+      color: '#555',
+  },
+  link: {
+      color: 'teal',
+      fontWeight: 'bold',
+  }
 });
 
 export default SignInScreen;

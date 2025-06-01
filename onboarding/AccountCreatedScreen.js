@@ -4,10 +4,15 @@ import Icons from '@react-native-vector-icons/ant-design';
 
 const AccountCreatedScreen = ({navigation}) => {
           const handleLogin = () => {
-            // Handle sign-in logic here
-     
-            navigation.navigate('Login');
-          };
+           
+    // Reset stack to Login to prevent going back to registration flow
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      })
+    );
+  };
     return (
         <View style={styles.container}>
             <View style={styles.header}>

@@ -1,106 +1,162 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
-import { Toast } from 'native-base';
-import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, Animated } from 'react-native';
-
-import { useSelector } from 'react-redux';
-
-
+// NotifySwitch.js
+import React, { useEffect, useState, useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, Animated, ActivityIndicator, Text, Alert } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { Toast } from 'native-base'; // Assuming you still want to use NativeBase Toast
+// import { ToastSuccess } from './your-toast-components'; // Your custom toast component if any
+import { fetchAvailabilityStatus, updateAvailabilityStatus, resetAvailabilityState } from '../store/avail'; // Adjust path
 
 const NotifySwitch = () => {
-  const [isEnabled, setIsEnabled] = useState(false);
-  const translateX = useState(new Animated.Value(0))[0];
-const [availabilityStatus, setAvailabilityStatus] = useState('busy'); // Initial status
-  const  FCM  = useSelector(TOKEN);
-   useEffect(() => {
-    AsyncStorage.getItem("FCMStatus").then((data) => {
-      if (data) {
-        setIsEnabled(JSON.parse(data));
-        console.log(isEnabled,'first',data)
-      }
-      Animated.timing(translateX, {
-      toValue: isEnabled ? 0 : 17, // Adjust this value based on thumb size
-      duration: 200,
-      useNativeDriver: true,
-    }).start();  
-    });
-  }, []);
-  const toggleSwitch= async () => {
-    setIsEnabled(previousState => !previousState);
-    console.log(isEnabled)
-    Animated.timing(translateX, {
-      toValue: isEnabled ? 0 : 17, // Adjust this value based on thumb size
-      duration: 200,
-      useNativeDriver: true,
-    }).start();   
-    try {
-        AsyncStorage.setItem("FCMStatus", JSON.stringify(!isEnabled));
-          const token = await AsyncStorage.getItem('userToken');
-            const FCMToken = await AsyncStorage.getItem('FCMToken');
-         let parse = JSON.parse(token);
-        
-         console.log(FCM,'====',FCMToken)
-         
-      const response = await instance.patch('/notifications/activate-push-notification',{ "device_token": FCM,"status": isEnabled});
- 
-      if (response) {
+  const dispatch = useDispatch();
+  const {
+    isAvailable,
+    getStatus,
+    getError,
+    updateStatus,
+    updateError
+  } = useSelector((state) => state.availability);
 
-         console.log(isEnabled,response.data)
-        console.log('Availability status updated successfully!');
-        if(isEnabled=== false)
-     { 
-        Toast.show({ render: () => {return <ToastSuccess  title='Status Updated' status={'success'}  message={'you have turned on notifictaions!'} /> }})
-     } // navigation.navigate('bottomTab')
-     else{
-    Toast.show({ render: () => {return <ToastSuccess  title='Status Updated' status={'success'}  message={'you will no longer receive notifications!'} /> }})
-    
-     }
-      } else {
-        console.log('Failed to update availability status');
-      }
-    } catch (error) {
-      console.error(error);
-      console.log(error.response?.data?.message)
+  // Local state for animation, driven by Redux's isAvailable
+  const [localIsEnabled, setLocalIsEnabled] = useState(false);
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  // Fetch initial status on mount
+  useEffect(() => {
+    dispatch(fetchAvailabilityStatus());
+    return () => {
+        // Optional: reset state if component unmounts and you want to clear errors/status
+        // dispatch(resetAvailabilityState());
     }
-  
+  }, [dispatch]);
+
+  // Update local state and animation when Redux state changes
+  useEffect(() => {
+    if (getStatus === 'succeeded') {
+      setLocalIsEnabled(isAvailable);
+      Animated.timing(translateX, {
+        toValue: isAvailable ? 17 : 0, // 17 when enabled (thumb moves right), 0 when disabled
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isAvailable, getStatus, translateX]);
+
+  // Handle API call errors
+  useEffect(() => {
+    if (getStatus === 'failed' && getError) {
+      Alert.alert('Error', getError.message || 'Could not fetch availability status.');
+    }
+    if (updateStatus === 'failed' && updateError) {
+      Alert.alert('Error', updateError.message || 'Could not update availability status.');
+      // Revert optimistic update if you had one, by re-fetching or setting localIsEnabled
+      setLocalIsEnabled(isAvailable); // Revert to last known good state from Redux
+       Animated.timing(translateX, {
+        toValue: isAvailable ? 17 : 0,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [getStatus, getError, updateStatus, updateError, isAvailable, translateX]);
+
+
+  // Handle successful update (e.g., show toast)
+  useEffect(() => {
+    if (updateStatus === 'succeeded') {
+        // The API call in your original component was for notifications,
+        // this new API is for availability. Adjust toast message accordingly.
+        const message = localIsEnabled ? 'You are now marked as available!' : 'You are now marked as unavailable.';
+        Toast.show({
+            description: message,
+            duration: 3000,
+            // render: () => {return <ToastSuccess  title='Status Updated' status={'success'}  message={message} /> }
+        });
+    }
+  }, [updateStatus, localIsEnabled]);
+
+
+  const toggleSwitch = () => {
+    if (updateStatus === 'loading' || getStatus === 'loading') {
+      return; // Prevent multiple quick toggles while an operation is in progress
+    }
+
+    const newApiStatus = !localIsEnabled; // The status we want to send to the API
+
+    // Optimistically update UI (optional, but can make it feel snappier)
+    // The useEffect for [isAvailable] will correct this if API fails and state reverts.
+    setLocalIsEnabled(newApiStatus);
+    Animated.timing(translateX, {
+      toValue: newApiStatus ? 17 : 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+
+    dispatch(updateAvailabilityStatus(newApiStatus));
   };
 
+  if (getStatus === 'loading' && isAvailable === null) { // Show loader only on initial load
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="small" color="#513DB0" />
+      </View>
+    );
+  }
+
   return (
-    <TouchableOpacity style={styles.switchContainer} onPress={()=>toggleSwitch()}>
-      <Animated.View  style={[styles.track, isEnabled && styles.trackEnabled]}>
+    <TouchableOpacity
+      style={styles.switchContainer}
+      onPress={toggleSwitch}
+      disabled={updateStatus === 'loading'} // Disable while updating
+    >
+      <Animated.View style={[styles.track, localIsEnabled && styles.trackEnabled]}>
         <Animated.View style={[styles.thumb, { transform: [{ translateX }] }]} />
       </Animated.View>
+      {updateStatus === 'loading' && <ActivityIndicator size="small" color="#fff" style={styles.thumbLoader}/>}
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  loaderContainer: { // For initial loading
+    width: 40,
+    height: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom:5,
+    marginTop:0,
+    marginLeft:-10,
+  },
   switchContainer: {
-    width: 40, // Width of the switch
-    height: 25, // Height of the switch
-    justifyContent: 'left',
-    alignItems: 'center',marginBottom:5,marginTop:0,marginLeft:-10
+    width: 40,
+    height: 25,
+    justifyContent: 'center', // Changed from 'left'
+    alignItems: 'center', // Ensures track is centered if smaller
+    marginBottom:5,
+    marginTop:0,
+    marginLeft:-10, // This might need adjustment based on parent layout
   },
   track: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 17, // Half of the height for rounded corners
+    width: 40, // Make track full width of container
+    height: 24, // Full height
+    borderRadius: 12,
     backgroundColor: '#ccc',
-    justifyContent: 'flex-start',
-    padding: 5, // Padding to make track wider
+    justifyContent: 'center', // Center thumb vertically if track is taller
+    // padding: 2, // Removed padding as thumb is positioned absolutely
   },
   trackEnabled: {
-    backgroundColor: '#513DB0', // Color when enabled
+    backgroundColor: '#513DB0',
   },
   thumb: {
-    width: 22, // Width of the thumb
-    height: 22, // Height of the thumb
-    borderRadius: 12, // Half of the height for rounded shape
+    width: 20, // Slightly smaller than track height
+    height: 20,
+    borderRadius: 10,
     backgroundColor: 'white',
     position: 'absolute',
-    top: 2, // Center the thumb vertically
+    left: 2, // Initial position for 'off' state
+    // top: 2, // Centered by track's justifyContent: 'center' now
   },
+  thumbLoader: { // For loading indicator on the thumb during update
+    position: 'absolute',
+  }
 });
 
 export default NotifySwitch;

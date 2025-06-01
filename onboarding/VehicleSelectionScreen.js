@@ -1,166 +1,141 @@
-import { Box, Progress } from 'native-base';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
+import { Box, Progress } from 'native-base';
 import Icons from '@react-native-vector-icons/ant-design';
-import { RadioButton } from 'react-native-paper'; // Correct import
+import { useDispatch, useSelector } from 'react-redux';
+import { setVehiclePhoto } from '../store/verify';
+import UploadBottomSheet from './uploadSheet'; // Adjust path
 
-const VehicleSelectionScreen = ({route,navigation}) => {
-    const { currentProgress } = route.params || {}; // Get progress from route params
-    console.log(currentProgress,'pro')
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState('');
-  
-  const vehicleOptions = [
-    'Motorbike',
-    'Electric motorbike',
-    'Bicycle',
-    'Electric bicycle',
-    'Walker',
-  ];
-  const [progress, setProgress] = useState(80);
-  const handleSelection = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    setModalVisible(false);
+const VehicleIdUploadScreen = ({ route, navigation }) => {
+  const { currentProgress } = route.params || { currentProgress: 80 };
+  const dispatch = useDispatch();
+  const vehiclePhotoUri = useSelector((state) => state.verification.vehiclePhotoUri);
+
+  const [progress, setProgress] = useState(currentProgress);
+  const [isSheetVisible, setSheetVisible] = useState(false);
+
+  const handleImageSelected = (imageData) => {
+    if (imageData) {
+      dispatch(setVehiclePhoto(imageData));
+    }
+    setSheetVisible(false);
   };
+
   const handleNext = () => {
-    // Logic to 
-    console.log("Uploading:", selectedVehicle);
-    // Handle the next action here (e.g., navigation)   
-    setProgress(prev => Math.min(prev + 20, 100));
-    navigation.navigate('NinCollectionScreen',{currentProgress:progress}); // Navigate to the next screen
+    if (!vehiclePhotoUri) {
+      Alert.alert("Missing Photo", "Please upload your vehicle photo.");
+      return;
+    }
+    console.log("Vehicle Photo URI:", vehiclePhotoUri);
+    const nextProgress = Math.min(progress + 20, 100);
+    // Navigate to LicenseCollectionScreen or the next appropriate screen
+    navigation.navigate('LicenseCollectionScreen', { currentProgress: nextProgress });
   };
+
   return (
     <View style={styles.container}>
-       <Box safeArea padding={4}>
-         <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-           <Icons name="arrow-left" size={30} color='teal' />
-</TouchableOpacity>
-      <Text style={styles.head}>Document collection</Text>
-         </View>
-         <Progress value={progress} colorScheme="teal" size="md" mb={4} /></Box>
-         <View style={styles.content}>
-      <Text style={styles.question}>Which type of vehicle are you going to use for your deliveries?</Text>
-      <TouchableOpacity style={styles.dropdown} onPress={() => setModalVisible(true)}>
-        <Text style={styles.dropdownText}>{selectedVehicle || 'Select an option'}</Text>
-      </TouchableOpacity>
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalHeader}>Select option</Text>
-          <FlatList
-            data={vehicleOptions}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.option}
-                onPress={() => handleSelection(item)}
-              >
-                <Text style={styles.optionText}>{item}</Text>
-                <RadioButton
-                  value={item}
-                  status={selectedVehicle === item ? 'checked' : 'unchecked'}
-                  onPress={() => handleSelection(item)}
-                />
-              </TouchableOpacity>
-            )}
-          />
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setModalVisible(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
+      <Box safeAreaTop paddingX={4} paddingTop={4}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icons name="arrowleft" size={30} color='teal' />
           </TouchableOpacity>
+          <Text style={styles.title}>Document collection</Text>
         </View>
-      </Modal>
-    </View>
-      <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>Next</Text>
-          </TouchableOpacity>
-       
+        <Progress value={progress} colorScheme="teal" size="md" mt={4} mb={4} />
+      </Box>
+
+      <View style={styles.content}>
+        <Text style={styles.head}>Upload Your Vehicle Photo</Text>
+        <Text style={styles.subHeader}>
+          Photo of your vehicle (bike, car, etc.)
+        </Text>
+
+        {vehiclePhotoUri && <Image source={{ uri: vehiclePhotoUri }} style={styles.imagePreview} />}
+
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={() => setSheetVisible(true)}>
+          <Text style={styles.buttonText}>{vehiclePhotoUri ? 'Change Vehicle Photo' : 'Upload Vehicle Photo'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity style={styles.submitButton} onPress={handleNext}>
+        <Text style={styles.buttonText}>Next</Text>
+      </TouchableOpacity>
+
+      <UploadBottomSheet
+        visible={isSheetVisible}
+        onClose={() => setSheetVisible(false)}
+        onImageSelected={handleImageSelected}
+      />
     </View>
   );
 };
 
+// Using similar styles to DocumentUploadScreen for consistency
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    color: '#333',
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
-  button: {
+  head: {
+    fontSize: 20,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  subHeader: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#555',
+    marginBottom: 20,
+  },
+  imagePreview: {
+    width: 200,
+    height: 150,
+    resizeMode: 'contain',
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  uploadButton: {
+    backgroundColor: 'teal',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  submitButton: {
     backgroundColor: '#28a745',
     padding: 15,
     borderRadius: 4,
     alignItems: 'center',
+    margin: 20,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-  },
-  head: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  }, header: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    width: '100%',
-}, content: {
-    flex: 1,
-   
-    marginVertical: 30,
-},
-  question: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  dropdown: {
-    backgroundColor: '#eaeaea',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  dropdownText: {
-    fontSize: 16,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
-    padding: 20,
-  },
-  modalHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-  },
-  optionText: {
-    flex: 1,
-    fontSize: 16,
-  },
-  closeButton: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
 });
 
-export default VehicleSelectionScreen;
+export default VehicleIdUploadScreen;

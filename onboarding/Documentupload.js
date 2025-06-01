@@ -1,68 +1,72 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Button } from 'react-native-paper';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+// import { Button } from 'react-native-paper'; // Using TouchableOpacity for consistency
 import { Box, Progress } from 'native-base';
 import Icons from '@react-native-vector-icons/ant-design';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIdPhoto } from '../store/verify';
+import UploadBottomSheet from './uploadSheet'; // Adjust path
 
-const DocumentUploadScreen = ({navigation}) => {
-  const [imageUri, setImageUri] = useState(null);
+const DocumentUploadScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const idPhotoUri = useSelector((state) => state.verification.idPhotoUri);
 
-  const handleImageUpload = () => {
-    const options = {
-      mediaType: 'photo',
-      quality: 1,
-    };
+  const [progress, setProgress] = useState(60); // Initial progress
+  const [isSheetVisible, setSheetVisible] = useState(false);
 
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorCode);
-      } else if (response.assets) {
-        setImageUri(response.assets[0].uri);
-      }
-    });
+  const handleImageSelected = (imageData) => { // imageData is { uri, fileName, type }
+    if (imageData) {
+      dispatch(setIdPhoto(imageData));
+    }
+    setSheetVisible(false);
   };
-  const [progress, setProgress] = useState(60);
-  const handleUpload = () => {
-    // Logic to upload the image (imageUri) to the server
-    console.log("Uploading:", imageUri);
-    // Handle the next action here (e.g., navigation)   
-    setProgress(prev => Math.min(prev + 20, 100));
-    navigation.navigate('VehicleSelectionScreen',{currentProgress:progress}); // Navigate to the next screen
+
+  const handleSubmit = () => {
+    if (!idPhotoUri) {
+      Alert.alert("Missing Photo", "Please upload your ID photo.");
+      return;
+    }
+    console.log("ID Photo URI:", idPhotoUri);
+    const nextProgress = Math.min(progress + 20, 100);
+    navigation.navigate('VehicleIdUploadScreen', { currentProgress: nextProgress });
   };
+
   return (
     <View style={styles.container}>
-        <Box safeArea padding={4}>
-         <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-           <Icons name="arrow-left" size={30} color='teal' />
-</TouchableOpacity>
-      <Text style={styles.title}>Document collection</Text>
-         </View>
-         <Progress value={progress} colorScheme="teal" size="md" mb={4} /></Box>
-         <View style={styles.content}>
-        <Text style={styles.head}>Upload Your ID</Text>
-      <Text style={styles.subHeader}>
-        Photo of your ID (National ID, valid voter’s card, intl passport or rider's card)
-      </Text>
+      <Box safeAreaTop paddingX={4} paddingTop={4}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icons name="arrowleft" size={30} color='teal' />
+          </TouchableOpacity>
+          <Text style={styles.title}>Document collection</Text>
+        </View>
+        <Progress value={progress} colorScheme="teal" size="md" mt={4} mb={4} />
+      </Box>
 
-      {/* Optional display of selected image */}
-      {imageUri && <Image source={{ uri: imageUri }} style={styles.image} />}
+      <View style={styles.content}>
+        <Text style={styles.head}>Upload Your ID</Text>
+        <Text style={styles.subHeader}>
+          Photo of your ID (National ID, valid voter’s card, intl passport or rider's card)
+        </Text>
+
+        {idPhotoUri && <Image source={{ uri: idPhotoUri }} style={styles.imagePreview} />}
+
+        <TouchableOpacity
+          style={styles.uploadButton}
+          onPress={() => setSheetVisible(true)}>
+          <Text style={styles.buttonText}>{idPhotoUri ? 'Change ID Photo' : 'Upload ID Photo'}</Text>
+        </TouchableOpacity>
       </View>
-      <Button 
-        mode="contained" 
-        onPress={handleImageUpload} 
-        style={styles.uploadButton}>
-        Upload
-      </Button>
-      <Button 
-        mode="contained" 
-        onPress={handleUpload} 
-        style={styles.uploadButton}>
-        Submit
-      </Button>
+
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>Next</Text>
+      </TouchableOpacity>
+
+      <UploadBottomSheet
+        visible={isSheetVisible}
+        onClose={() => setSheetVisible(false)}
+        onImageSelected={handleImageSelected}
+      />
     </View>
   );
 };
@@ -70,38 +74,65 @@ const DocumentUploadScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  }, title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    backgroundColor: '#fff',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
     alignItems: 'center',
-    width: '100%',
-},
+    paddingHorizontal: 10, // Consistent padding
+  },
+  title: {
+    fontSize: 22, // Adjusted size
+    fontWeight: 'bold',
+    marginLeft: 20, // Spacing from icon
+    color: '#333',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  head: {
+    fontSize: 20,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
   subHeader: {
     fontSize: 16,
     textAlign: 'center',
-    marginVertical: 10,
-  }, head: {
-    marginVertical: 16,
+    color: '#555',
+    marginBottom: 20,
+  },
+  imagePreview: {
+    width: 200,
+    height: 150,
+    resizeMode: 'contain',
+    marginVertical: 20,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
   uploadButton: {
-    marginTop: 20,
-    width: '100%', backgroundColor:'#28a745'
-  },  content: {
-    flex: 1,
-   
-    marginVertical: 30,
-},
-  image: {
-    width: 100,
-    height: 100,
-    marginVertical: 20,
+    backgroundColor: 'teal',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginVertical: 10,
+    width: '80%',
+  },
+  submitButton: {
+    backgroundColor: '#28a745',
+    padding: 15,
+    borderRadius: 4,
+    alignItems: 'center',
+    margin: 20,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
