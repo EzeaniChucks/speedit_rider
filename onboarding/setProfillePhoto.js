@@ -6,7 +6,9 @@ import { Box, Progress } from 'native-base';
 
 const DocumentCollectionScreen = ({navigation}) => {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const toggle = () => setIsBottomSheetOpen(!isBottomSheetOpen);
+  const toggle = () => {setIsBottomSheetOpen(!isBottomSheetOpen);
+    console.log("Bottom sheet toggled:", isBottomSheetOpen);
+  };
   const [progress, setProgress] = useState(20); 
   const handleNext = () => {
     // Increase progress by 20% with each button press (adjust as necessary)

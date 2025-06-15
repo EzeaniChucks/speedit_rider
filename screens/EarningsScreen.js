@@ -13,7 +13,7 @@ const EarningsScreen = () => {
   const navigation = useNavigation(); // For RecentActivity's "Show More" if not passed as prop
   const dispatch = useDispatch();
   const { balance, status: balanceStatus, error: balanceError } = useSelector((state) => state.wallet);
-
+console.log("Balance:", balance, "Status:", balanceStatus, "Error:", balanceError);
   // Static chart data as in original, can be dynamic later
   const chartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
@@ -45,7 +45,7 @@ const EarningsScreen = () => {
                 <Text style={styles.orderText}> Total Income</Text>
                 <Box>
                   <Text style={styles.totalIncome}>
-                    {balanceStatus === 'succeeded' && balance !== null ? `$${parseFloat(balance).toFixed(2)}` : '$0.00'}
+                    { balance !== null ? `N${parseFloat(balance.data?.balance).toFixed(2)}` : '$0.00'}
                   </Text>
                   {/* <Text style={styles.subText}>↑ 0.5% than last month</Text> */}
                 </Box>

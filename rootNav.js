@@ -47,6 +47,9 @@ import { Provider as ReduxProvider,useDispatch } from 'react-redux';
 import { setFcmToken } from './store/authSlice';
 import messaging, { firebase } from '@react-native-firebase/messaging';
 import { firebaseConfig } from './firebaseCon';
+import LicenseCollectionScreen from './onboarding/NinCollection ';
+import AvailableOrdersScreen from './screens/avalOrders';
+import AvailableRidersScreen from './screens/availDash';
 const Stack = createStackNavigator();
 
 const RootNavigation = () => {
@@ -136,6 +139,8 @@ const FcmHandler = () => {
 
   useEffect(() => {
     // 1. Request permission and get initial token
+        if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);}
     requestUserPermissionAndGetToken(dispatch);
 
     // 2. Listen for token refresh (FCM tokens can change)
@@ -183,7 +188,7 @@ const FcmHandler = () => {
     <ReduxProvider store={store}>
        <NativeBaseProvider>
     <PaperProvider>
-     {/* <FcmHandler /> */}
+     <FcmHandler />
     <NavigationContainer ref={setNavigator}>
       
       <Stack.Navigator    screenOptions={{
@@ -200,7 +205,7 @@ const FcmHandler = () => {
               <Stack.Screen name="DocumentCollectionScreen" component={DocumentCollectionScreen} />
               <Stack.Screen name="DocumentUploadScreen" component={DocumentUploadScreen} />
               <Stack.Screen name="VehicleSelectionScreen" component={VehicleSelectionScreen} />
-              <Stack.Screen name="NinCollectionScreen" component={NinCollectionScreen} />
+              <Stack.Screen name="LicenseCollectionScreen" component={LicenseCollectionScreen} />
               <Stack.Screen name="BottomTabNavigator" component={BottomTabNavigator} />
               <Stack.Screen name="RiderActive" component={RiderActive} />
         <Stack.Screen name="Home" component={HomeScreen} />
@@ -210,11 +215,13 @@ const FcmHandler = () => {
         <Stack.Screen name="Profile" component={ProfileScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
-        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="orders" component={AvailableOrdersScreen} />
         <Stack.Screen name="CustomerTrack" component={TrackCustomer} />
         <Stack.Screen name="PickupScreen" component={PickupScreen} />
         <Stack.Screen name="DeliveryScreen" component={DeliveryScreen} />
         <Stack.Screen name="Earnings" component={EarningsScreen} />
+        <Stack.Screen name="avalRides" component={AvailableRidersScreen} />
+                <Stack.Screen name="avalOrders" component={AvailableOrdersScreen} />
       </Stack.Navigator>
     </NavigationContainer>
        </PaperProvider>

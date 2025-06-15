@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import Icon from '@react-native-vector-icons/ant-design';
 import Icons from '@react-native-vector-icons/ionicons';
 import { navigate } from '../NavigationService';
-const OrderScreen = ({navigation}) => {
+const OrderPickedScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
         <HStack justifyContent={'space-around'}>
@@ -114,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OrderScreen;
+export default OrderPickedScreen;

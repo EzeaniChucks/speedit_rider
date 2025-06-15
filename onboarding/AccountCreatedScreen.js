@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import Icons from '@react-native-vector-icons/ant-design';
+import { CommonActions } from '@react-navigation/native';
 
 const AccountCreatedScreen = ({navigation}) => {
           const handleLogin = () => {

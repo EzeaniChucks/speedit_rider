@@ -1,44 +1,26 @@
 {
   "project_info": {
-    "project_number": "907006300440",
-    "project_id": "speedit-v1",
-    "storage_bucket": "speedit-v1.firebasestorage.app"
+    "project_number": "35840120049",
+    "project_id": "speedit-rider-android",
+    "storage_bucket": "speedit-rider-android.firebasestorage.app"
   },
   "client": [
-   
     {
       "client_info": {
-        "mobilesdk_app_id": "1:907006300440:android:c740b8257b184a3d730e6d",
+        "mobilesdk_app_id": "1:35840120049:android:1737b002fca91b01930550",
         "android_client_info": {
           "package_name": "com.riders"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "907006300440-dskbam26l689c0i3c790vorrtsknuthd.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDJZkbgyY44RFDbcmZgAz2d04ELuxJUIJ4"
+          "current_key": "AIzaSyBvJMuyoGhN_HbTvcQ-ka8QXKR6vcn7Zzs"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "907006300440-dskbam26l689c0i3c790vorrtsknuthd.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "907006300440-n7nps15m4s15oecflmd3fe3iqlpnicm1.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "org.reactjs.native.example.GlovoApp"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

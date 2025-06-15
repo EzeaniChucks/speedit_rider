@@ -11,7 +11,7 @@ const DocumentUploadScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const idPhotoUri = useSelector((state) => state.verification.idPhotoUri);
 
-  const [progress, setProgress] = useState(60); // Initial progress
+  const [progress, setProgress] = useState(20); // Initial progress
   const [isSheetVisible, setSheetVisible] = useState(false);
 
   const handleImageSelected = (imageData) => { // imageData is { uri, fileName, type }
@@ -28,7 +28,7 @@ const DocumentUploadScreen = ({ navigation }) => {
     }
     console.log("ID Photo URI:", idPhotoUri);
     const nextProgress = Math.min(progress + 20, 100);
-    navigation.navigate('VehicleIdUploadScreen', { currentProgress: nextProgress });
+    navigation.navigate('VehicleSelectionScreen', { currentProgress: nextProgress });
   };
 
   return (

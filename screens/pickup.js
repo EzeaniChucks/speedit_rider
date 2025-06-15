@@ -5,42 +5,72 @@ import { Pressable, Slider, VStack ,Box, Icon as Icons, HStack, StatusBar} from 
 import Icon from '@react-native-vector-icons/entypo';
 import RiderStatus from './DriverStatus';
 import { navigate } from '../NavigationService';
+
+import { useCancelOrderMutation, useUpdateOrderStatusMutation } from '../store/ordersApi'; // Adjust path
+
 const PickupScreen = () => {
+    const route = useRoute();
+        const navigation = useNavigation();
+        const { order } = route.params; // Get the order details from navigation
+    
+        const [cancelOrder, { isLoading: isCancelling }] = useCancelOrderMutation();
+        const [updateStatus, { isLoading: isUpdatingStatus }] = useUpdateOrderStatusMutation();
+    
+        // In a real app, geocode addresses to get coordinates
+        const pickupCoords = { latitude: 6.4238, longitude: 7.4238 }; // Placeholder for Enugu
+        const deliveryCoords = { latitude: 6.43, longitude: 7.43 }; // Placeholder
+    
+        const handleCancelJob = () => {
+            Alert.alert(
+                "Cancel Job", "Are you sure you want to cancel this job?",
+                [
+                    { text: "No", style: "cancel" },
+                    {
+                        text: "Yes, Cancel",
+                        style: 'destructive',
+                        onPress: async () => {
+                            try {
+                                await cancelOrder({ orderId: order.o_id }).unwrap();
+                                Alert.alert('Success', 'The job has been cancelled.');
+                                navigation.goBack();
+                            } catch (err) {
+                                Alert.alert('Error', 'Failed to cancel the job.');
+                            }
+                        },
+                    }
+                ]
+            );
+        };
+        
+        const handleGoToPickup = async () => {
+            try {
+                // Replace with your app's actual status string
+                await updateStatus({ orderId: order.o_id, status: 'EN_ROUTE_TO_PICKUP' }).unwrap();
+                // Navigate to the next screen in the flow, e.g., OrderPicked
+                 navigation.navigate('OrderPicked', { order });
+                Alert.alert("Status Updated", "You are now en route to pickup.");
+    
+            } catch(err) {
+                Alert.alert("Error", "Could not update status.");
+            }
+        }
     return (
         <Box bg={'teal.300'} style={styles.container}>
             <StatusBar barStyle={'default'} />
-            <MapView
- 
-        style={styles.map}
-        initialRegion={{
-          latitude: 14.6183,
-          longitude: 121.0541,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker coordinate={{ latitude: 14.6183, longitude: 121.0541 }} />
-        <Marker coordinate={{ latitude: 14.6200, longitude: 121.0585 }} />
-        <Polyline 
-          coordinates={[
-            { latitude: 14.6183, longitude: 121.0541 },
-            { latitude: 14.6200, longitude: 121.0585 },
-          ]}
-          strokeColor="#000" // Customize the path color
-          strokeWidth={3}
-        />
-      </MapView>
+                <MapView style={styles.map} initialRegion={{ ...pickupCoords, latitudeDelta: 0.02, longitudeDelta: 0.02 }}>
+                           <Marker coordinate={pickupCoords} title="Pickup" pinColor="blue" />
+                           <Marker coordinate={deliveryCoords} title="Delivery" />
+                           <Polyline coordinates={[pickupCoords, deliveryCoords]} strokeColor="#000" strokeWidth={3} />
+                       </MapView>
       <RiderStatus />
       <Box p={5}>
           
             <Text style={styles.title}>PICK UP</Text>
-            <Text style={styles.restaurantName}>Tasty Dumplings</Text>
-            <Text style={styles.address}>
-                GE Leruf Square 1088 Arlegui St, Bgy 385, Zone 039 1001 Metro Manila, Philippines
-            </Text>
+            <Text style={styles.restaurantName}>Restaurant at Location</Text>
+           <Text style={styles.address}>{order.o_pickupAddress}</Text>
             <VStack mb={4}>
             <Text style={styles.orderReference}>ORDER REFERENCE</Text>
-            <Text style={styles.order}> 0002221111333</Text>
+            <Text style={styles.order}> {order.o_id.substring(0, 18)}...</Text>
             </VStack>
             {/* <Slider w="3/4" maxW="300" defaultValue={70} minValue={0} maxValue={100} style={styles.slider} /> */}
             <Box mb={6}>
@@ -63,9 +93,9 @@ const PickupScreen = () => {
             </View>
             
             <View style={styles.actionContainer}>
-                <Button title="Cancel Job" onPress={() => console.log('Cancel Job pressed')} color="red" />
-                <Button title="Go to Pick Up" onPress={() => navigate('OrderPicked',{name:'order'})} />
-            </View>
+                 <Button title={isCancelling ? "Cancelling..." : "Cancel Job"} onPress={handleCancelJob} color="red" disabled={isCancelling || isUpdatingStatus} />
+                               <Button title={isUpdatingStatus ? "Updating..." : "Go to Pick Up"} onPress={handleGoToPickup} color="green" disabled={isCancelling || isUpdatingStatus} />
+                           </View>
             </Box>
         </Box>
     );

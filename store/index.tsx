@@ -4,6 +4,7 @@ import { ordersApi } from './ordersApi';
 import { riderApi } from './api';
 import authReducer from './authSlice';
 import userAuthReducer from './profile';
+import walletReducer from './wallet';
 import verificationReducer from './verify';
 import availabilityReducer from './avail'; // The new slice
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
      verification: verificationReducer,
      availability: availabilityReducer,
     [ordersApi.reducerPath]: ordersApi.reducer,
+     wallet: walletReducer,
     profile :userAuthReducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,

@@ -1,8 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 // Define your base URL
-const BASE_URL = 'https://speedit-server.onrender.com/v1/api/riders/'; // For iOS simulator
-// const BASE_URL = 'http://10.0.2.2:3000/api/riders/'; // For Android emulator
+const BASE_URL = 'https://speedit-server.onrender.com/v1/api/riders/'; 
+
 
 export const ordersApi = createApi({
   reducerPath: 'ordersApi',
@@ -16,7 +16,7 @@ export const ordersApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['AvailableOrders', 'CurrentOrder', 'OrderHistory', 'Order'], // For cache invalidation
+  tagTypes: ['AvailableOrders', 'CurrentOrder', 'OrderHistory', 'Order','Wallet', 'WalletTransactions', 'RiderLocation'], // For cache invalidation
   endpoints: (builder) => ({
     getAvailableOrders: builder.query({
       query: ({ radius, riderLocation }) =>
@@ -67,6 +67,70 @@ export const ordersApi = createApi({
         query: (orderId) => `orders/${orderId}/`, // Assuming such an endpoint exists
         providesTags: (result, error, orderId) => [{ type: 'Order', id: orderId }],
     }),
+    
+    // === LOCATION TRACKING ===
+    updateRiderLocation: builder.mutation({
+        query: ({ lat, lng }) => ({
+            url: 'riders/location/',
+            method: 'PUT',
+            body: { lat, lng }
+        }),
+        // No invalidation needed as this is a "fire-and-forget" update
+    }),
+    getRiderLocation: builder.query({
+        query: () => 'riders/location/',
+        providesTags: ['RiderLocation'],
+    }),
+      // === WALLET & PAYMENTS ===
+    getWalletBalance: builder.query({
+        query: () => 'riders/wallet/',
+        providesTags: ['Wallet'],
+    }),
+    getWalletTransactions: builder.query({
+        query: ({ page = 1, limit = 10 }) => `riders/wallet/transactions?page=${page}&limit=${limit}`,
+        providesTags: ['WalletTransactions'],
+    }),
+    fundWallet: builder.mutation({
+        query: ({ amount }) => ({
+            url: 'riders/wallet/fund/',
+            method: 'POST',
+            body: { amount },
+        }),
+        invalidatesTags: ['Wallet'], // May not invalidate immediately, depends on payment gateway callback
+    }),
+    // The "verify" endpoint is public and uses a `trxref`.
+    // It's better called from a server-side webhook, but if called from the client:
+    verifyFunding: builder.query({
+        query: (trxref) => `payments/funding/verify?trxref=${trxref}`,
+        // This query should trigger a refetch of the wallet balance upon completion.
+        async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            try {
+                await queryFulfilled;
+                dispatch(api.util.invalidateTags(['Wallet', 'WalletTransactions']));
+            } catch (err) {
+                // handle error
+            }
+        },
+    }),
+    getBankList: builder.query({
+        query: () => 'payments/banks/list',
+        // This is public, no auth needed.
+    }),
+    verifyBankAccount: builder.mutation({
+        query: ({ accountNumber, bankCode }) => ({
+            url: 'payments/banks/verify',
+            method: 'POST',
+            body: { accountNumber, bankCode, entityType: 'rider' },
+        }),
+    }),
+    requestWithdrawal: builder.mutation({
+        query: (withdrawalDetails) => ({ // { amount, accountNumber, bankCode }
+            url: 'payments/request_withdrawal',
+            method: 'POST',
+            body: { ...withdrawalDetails, entityType: 'rider' },
+        }),
+        invalidatesTags: ['Wallet', 'WalletTransactions'],
+    }),
   }),
 });
 
@@ -78,5 +142,16 @@ export const {
   useGetCurrentOrderQuery,
   useUpdateOrderStatusMutation,
   useConfirmVendorPaymentMutation,
-  useGetOrderDetailsQuery, // Export if you use it
+  useGetOrderDetailsQuery, 
+   // Location
+  useUpdateRiderLocationMutation,
+  useGetRiderLocationQuery,
+  // Wallet & Payments
+  useGetWalletBalanceQuery,
+  useGetWalletTransactionsQuery,
+  useFundWalletMutation,
+  useLazyVerifyFundingQuery, // Use lazy query for manual triggering
+  useGetBankListQuery,
+  useVerifyBankAccountMutation,
+  useRequestWithdrawalMutation,
 } = ordersApi;

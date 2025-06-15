@@ -24,7 +24,16 @@ export interface RiderProfile {
   verificationStatus?: 'pending' | 'verified' | 'approved' | 'rejected' | string;
   // Add other profile fields as needed
 }
-
+export interface RiderLoginResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  isAvailable?: boolean; // Optional, if availability is part of the profile
+  verificationStatus?: 'pending' | 'verified' | 'approved' | 'rejected' | string;
+  // Add other profile fields as needed
+}
 // Type for registration data payload
 export interface RegisterRiderData {
   firstName: string;
@@ -47,7 +56,7 @@ interface LoginSuccessResponse {
   message?: string;
   data: {
     token: string;
-    rider: RiderProfile;
+    rider: RiderLoginResponse;
   };
 }
 
@@ -62,7 +71,7 @@ interface RegisterSuccessResponse {
 type ApiErrorPayload = {
  data?: Record<string, any>; // For API error 
   message: string;
-  errors?: Record<string, string[]>; // For validation errors
+  error?: Record<string, string[]>; // For validation errors
   [key: string]: any;
 };
 
@@ -125,6 +134,8 @@ export const loginUser = createAsyncThunk<
       let resultData;
       try {
         resultData = JSON.parse(resultText); // Try to parse as JSON
+        console.log('Parsed login response:', resultData);
+
       } catch (e) {
         // If parsing fails but response was not ok, use text as message
         if (!response.ok) {
@@ -200,7 +211,7 @@ const authSlice = createSlice({
       }
     },
     // Used for loading persisted auth state or setting credentials from RTK query profile fetch
-    setAuthStateFromPersisted: (state, action: PayloadAction<{ token: string; user: RiderProfile }>) => {
+    setAuthStateFromPersisted: (state, action: PayloadAction<{ token: string; user: RiderLoginResponse }>) => {
         state.token = action.payload.token;
         state.user = action.payload.user;
         state.isAuthenticated = true;
@@ -276,7 +287,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = 'idle';
-        if (action.payload.success && action.payload.data && action.payload.data.token && action.payload.data.rider) {
+        // && action.payload.data.token && action.payload.data.rider
+        if (action.payload.success && action.payload.data) {
           state.user = action.payload.data.rider;
           state.token = action.payload.data.token;
           state.isAuthenticated = true;

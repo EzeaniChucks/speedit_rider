@@ -38,7 +38,7 @@ const CreatePasswordScreen = ({ navigation }) => {
       dispatch( clearAuthError());
     }
   }, [error, dispatch]);
-
+ const fcmToken = useSelector(state => state.auth.fcmToken)
   const togglePasswordVisibility = () => {
     setPasswordVisibility(!isPasswordVisible);
   };
@@ -105,7 +105,7 @@ const CreatePasswordScreen = ({ navigation }) => {
     }
 
    const userData = {
-      ...registrationForm,
+      ...registrationForm,fcmToken,
       password,
     };
     dispatch(registerUser(userData));

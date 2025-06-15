@@ -1,74 +1,50 @@
-import { Button, Pressable, VStack ,Box, Icon as Icons, HStack} from 'native-base';
-import React from 'react';
+import { Button, Pressable, VStack ,Box, Icon as Icons, HStack, Switch} from 'native-base';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image,Modal, } from 'react-native';
 import { Card } from 'react-native-paper';
 import Icon from '@react-native-vector-icons/ionicons';
 import FontAwesome from '@react-native-vector-icons/fontawesome6';
 import { navigate } from '../NavigationService';
+import {
+  fetchAvailabilityStatus,
+  updateAvailabilityStatus,
+} from '../store/avail'; // Adjust path
+import {
+  useGetRiderProfileQuery,
+  useGetWalletBalanceQuery,
+  useGetAvailableOrdersQuery,
+ 
+} from '../store/ordersApi'; // Adjust pat
+import { useDispatch, useSelector } from 'react-redux';
+import Geolocation from '@react-native-community/geolocation';
+import NotifySwitch from './availabiltyStatus';
+
 const DashboardScreen = () => {
-  const NewOrderModal = ({ visible, onClose }) => {
-    return (
-      <Modal 
-        transparent={true} 
-        animationType="slide" 
-        visible={visible}
-        onRequestClose={onClose}
-      >
-        <View style={style.overlay}>
-          <View style={style.modalContainer}>
-            <Text style={style.title}>New Orders</Text>
-            <Text style={style.earnings}>Earnings: $12.00</Text>
-            <View style={style.orderDetails}>
-              <Text style={style.orderText}>Resto Padang Gahar</Text>
-              <Text style={style.distance}>0.5 km</Text>
-            </View>
-            <View style={style.orderDetails}>
-              <Text style={style.orderText}>Rumah Ale No. 23</Text>
-              <Text style={style.distance}>2.8 km</Text>
-            </View>
-            <Button title="Accept Order (20s)" onPress={onClose} color="#4CAF50" />
-          </View>
-        </View>
-      </Modal>
-    );
+const dispatch = useDispatch();
+const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
+const profile= user
+console.log("Profile Data:", profile);
+  const { data: profileResponse, isLoading: isProfileLoading, error: profileError } = useGetRiderProfileQuery();
+  console.log("Profile Response:", profileResponse);
+  const { data: balanceData, isLoading: isBalanceLoading } = useGetWalletBalanceQuery();
+  console.log("Balance Data:", balanceData);
+  const {
+    isAvailable,
+    updateStatus: availabilityUpdateStatus,
+    getStatus: availabilityGetStatus,
+  } = useSelector((state) => state.availability);
+ useEffect(() => {
+    dispatch(fetchAvailabilityStatus());
+console.log("Availability Status:", isAvailable, "Update Status:", availabilityUpdateStatus, "Get Status:", availabilityGetStatus);
+  }, [dispatch]);
+const handleToggleAvailability = (newValue) => {
+    if (availabilityUpdateStatus === 'loading') return; // Prevent spamming
+    dispatch(updateAvailabilityStatus(newValue));
+    console.log("Toggling availability to:", newValue);
   };
-  const style = StyleSheet.create({
-    overlay: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContainer: {
-      width: '80%',
-      backgroundColor: 'white',
-      borderRadius: 10,
-      padding: 20,
-      elevation: 5,
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      marginBottom: 10,
-    },
-    earnings: {
-      fontSize: 18,
-      color: '#FFA500',
-      marginBottom: 20,
-    },
-    orderDetails: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      marginBottom: 10,
-    },
-    orderText: {
-      fontSize: 16,
-    },
-    distance: {
-      fontSize: 16,
-      color: '#888',
-    },
-  });  
+  const rider = profileResponse?.data;
+  const wallet = balanceData?.data;
+ // const pendingRequestsCount = availableOrdersData?.data?.length || 0;
   return (
     <ScrollView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -81,14 +57,18 @@ const DashboardScreen = () => {
           style={styles.profileImage}
         />
         <View style={styles.userInfo}>
-          <Text style={styles.userName}>Ahmad F W</Text>
-          <Text style={styles.userPhone}>+629 5371 7526 86</Text>
+          <Text style={styles.userName}>{profile.firstName+' '+profile.lastName}</Text>
+          <Text style={styles.userPhone}>{profile.phone}</Text>
          
         </View>
-        <Pressable p={3} borderRadius={'20'} bgColor={'#FFA500'} style={styles.onlineStatus}>
-            <Icon name="radio-button-on" size={20} color="white" />
-            <Text style={styles.onlineText}>Offline</Text>
-          </Pressable>
+     
+             <View style={styles.headertop}>
+        <Text style={styles.headerText}>
+          {isAvailable ? 'You are Online' : 'You are Offline'}
+        </Text>
+        <NotifySwitch />
+      
+      </View>
       </View>
       <View style={styles.cardContainer}>
         <TouchableOpacity style={styles.card}>
@@ -122,6 +102,10 @@ const DashboardScreen = () => {
         <HStack justifyContent={'space-between'} mt={5} alignItems={'center'}>
         <Box  width={'50%'}>
         <Text style={styles.text}>MONEY EARNED</Text>
+        {//fetching the amount for transactions yesterday
+          // This is a placeholder, replace with actual data fetching logic
+          // For example, you might fetch this from your Redux store or API
+        }
         <Text style={styles.amount}>N 280</Text></Box>
         <Box  width={'40%'}>
         <Text style={styles.text}>HOURS ONLINE</Text>
@@ -139,39 +123,7 @@ const DashboardScreen = () => {
           <Text style={styles.buttonText}>Go online</Text>
         </TouchableOpacity>
       </Box>
-      {/* <Card style={styles.ordersCard}>
-        <Card.Content>
-          
-          <Text style={styles.title}>New Orders</Text>
-          <Box flexDirection={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <VStack>
-          <Text style={styles.earningstitle}>Earnings: </Text>
-          <Text style={styles.earnings}> $12.00</Text>
-          </VStack>
-          <Pressable p={3} borderRadius={10} flexDir={'row'} justifyContent={'space-evenly'} backgroundColor={'#F0F8FF'}borderColor={'teal.300'} borderWidth={1}>
-            
-            <Text style={styles.earningspaid}>Already Paid</Text>
-            </Pressable>
-          </Box>
-          <View style={styles.orderItem}>
-            <Text style={styles.orderName}>Resto Padang Gahar</Text>
-            <Text style={styles.orderDistance}>0.5 km</Text>
-          </View>
-          <Text style={styles.orderDetail}>
-            Jl. Jendral Ahmad Yani No.20, Pengkol IV, Pengkol, Kec. Jepara, Kabupaten Jepara
-          </Text>
-          <View style={styles.orderItem}>
-            <Text style={styles.orderName}>Rumah Ale No. 23</Text>
-            <Text style={styles.orderDistance}>2.8 km</Text>
-          </View>
-          <Text style={styles.orderDetail}>
-            Jl. Pancoran Timur No.18, RT.8/RW.9, Kec. Jepara, Kabupaten Jepara
-          </Text>
-        </Card.Content>
-        <Card.Actions>
-          <Button title="Accept Order (20s)" color="#28A745" onPress={() => alert('Order Accepted')} />
-        </Card.Actions>
-      </Card> */}
+   
     </ScrollView>
   );
 };
@@ -318,7 +270,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: 'center',
   },
-  
+    headertop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   summaryContainer: {
    // backgroundColor: '#FFFFFF',
     padding: 20,

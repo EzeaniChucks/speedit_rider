@@ -5,6 +5,7 @@ import EarningsScreen from '../screens/EarningsScreen'; // Earnings component
 import MessagesScreen from '../screens/MessagesScreen'; // Messages component
 import ProfileScreen from '../screens/ProfileScreen'; // Profile component
 import Ionicons  from '@react-native-vector-icons/ionicons';
+import OrderHistoryScreen from '../screens/historyOrder';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,9 +21,9 @@ const BottomTabNavigator = () => {
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Earnings':
-              iconName = focused ? 'cash' : 'cash-outline';
+              iconName = focused ? 'home' : 'cash-outline';
               break;
-            case 'Messages':
+            case 'Orders':
               iconName = focused ? 'chatbubble' : 'chatbubble-outline';
               break;
             case 'Profile':
@@ -38,7 +39,7 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="EarningsScreen" component={EarningsScreen} />
-      <Tab.Screen name="Messages" component={MessagesScreen} />
+      <Tab.Screen name="Messages" component={OrderHistoryScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

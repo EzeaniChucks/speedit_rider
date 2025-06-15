@@ -16,7 +16,7 @@ const RecentActivity = () => {
       transactionStatus, 
       transactionError 
   } = useSelector((state) => state.wallet);
-
+console.log("Transactions:", transactions, "Status:", transactionStatus, "Error:", transactionError);
   // Fetch only a few recent transactions for the dashboard
   useFocusEffect(
     useCallback(() => {

@@ -1,13 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosInstance from './api'; // Adjust path if needed
+import axiosInstance from './instance'; // Adjust path if needed
 
 // Thunk to fetch current availability status
 export const fetchAvailabilityStatus = createAsyncThunk(
   'availability/fetchStatus',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get('riders/availability/');
+      const response = await axiosInstance.get('/riders/availability/');
       // Assuming the API returns { status: boolean } or similar
+      console.log('Fetched availability status:', response.data);
       return response.data; // e.g., { status: true }
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: 'Failed to fetch availability status' });
@@ -21,7 +22,7 @@ export const updateAvailabilityStatus = createAsyncThunk(
   async (newStatus, { rejectWithValue }) => { // newStatus is a boolean
     try {
       const payload = { status: newStatus };
-      const response = await axiosInstance.post('riders/availability/', payload);
+      const response = await axiosInstance.post('/riders/availability/', payload);
       return response.data; // e.g., { message: "Status updated", status: true }
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: 'Failed to update availability status' });
@@ -60,7 +61,7 @@ const availabilitySlice = createSlice({
       .addCase(fetchAvailabilityStatus.fulfilled, (state, action) => {
         state.getStatus = 'succeeded';
         // IMPORTANT: Adjust based on your actual API response structure for GET
-        state.isAvailable = action.payload.status; // Assuming response is { status: boolean }
+        state.isAvailable = action.payload.data.isAvailable; // Assuming response is { status: boolean }
       })
       .addCase(fetchAvailabilityStatus.rejected, (state, action) => {
         state.getStatus = 'failed';
@@ -74,7 +75,7 @@ const availabilitySlice = createSlice({
       .addCase(updateAvailabilityStatus.fulfilled, (state, action) => {
         state.updateStatus = 'succeeded';
         // IMPORTANT: Adjust based on your actual API response structure for POST
-        state.isAvailable = action.payload.status; // Assuming response confirms new status
+        state.isAvailable = action.payload.data?.isAvailable; // Assuming response confirms new status
         // You might also want to show a success message from action.payload.message
       })
       .addCase(updateAvailabilityStatus.rejected, (state, action) => {

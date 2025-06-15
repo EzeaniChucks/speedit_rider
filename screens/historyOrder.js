@@ -49,7 +49,7 @@ const OrderHistoryScreen = () => {
   
   const handleOrderItemPress = (orderId) => {
       console.log("Navigate to details for order:", orderId);
-      // navigation.navigate('OrderDetails', { orderId }); // If you have an OrderDetails screen
+       navigation.navigate('OrderDetails', { orderId }); // If you have an OrderDetails screen
   };
 
   if (isLoading && page === 1) {

@@ -22,8 +22,14 @@ const NotifySwitch = () => {
 
   // Fetch initial status on mount
   useEffect(() => {
-    dispatch(fetchAvailabilityStatus());
+ const  resultAction= dispatch(fetchAvailabilityStatus());
+     if(fetchAvailabilityStatus.fulfilled.match(resultAction)) {
+    console.log('Availability status fetched successfully:', resultAction.payload.data);
+      setLocalIsEnabled(resultAction.payload.data.isAvailable); // Assuming the API
+  }
+   // setLocalIsEnabled()
     return () => {
+      
         // Optional: reset state if component unmounts and you want to clear errors/status
         // dispatch(resetAvailabilityState());
     }
@@ -45,6 +51,7 @@ const NotifySwitch = () => {
   useEffect(() => {
     if (getStatus === 'failed' && getError) {
       Alert.alert('Error', getError.message || 'Could not fetch availability status.');
+      console.log('Fetch Error:', getError);
     }
     if (updateStatus === 'failed' && updateError) {
       Alert.alert('Error', updateError.message || 'Could not update availability status.');
@@ -80,7 +87,7 @@ const NotifySwitch = () => {
     }
 
     const newApiStatus = !localIsEnabled; // The status we want to send to the API
-
+console.log()
     // Optimistically update UI (optional, but can make it feel snappier)
     // The useEffect for [isAvailable] will correct this if API fails and state reverts.
     setLocalIsEnabled(newApiStatus);

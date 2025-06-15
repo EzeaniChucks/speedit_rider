@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Platform } from 'react-native';
 import axiosInstance from './instance'; // Import the configured Axios instance
+import { store } from '.';
+import apiInstance from './imageInstance';
 
 // Helper function to create a file object structure for FormData
 const createFormDataFile = (uri, fileName, type) => {
@@ -15,11 +17,11 @@ const createFormDataFile = (uri, fileName, type) => {
 // AsyncThunk for uploading documents using Axios
 export const uploadDocumentsThunk = createAsyncThunk(
   'verification/uploadDocuments',
-  async (_, { getState, rejectWithValue }) => {
-    const state = getState();
+  async (_, {  rejectWithValue }) => {
+    const state = store.getState();
     const { verification } = state;
     // Token will be added by the Axios interceptor
-
+ 
     if (!verification.idPhotoUri || !verification.licensePhotoUri || !verification.vehiclePhotoUri) {
       return rejectWithValue({ message: 'All three document images are required.' });
     }
@@ -45,13 +47,7 @@ export const uploadDocumentsThunk = createAsyncThunk(
       console.log("Uploading documents via Axios...");
       // The 'Authorization' header and 'Content-Type: multipart/form-data'
       // should be handled by the Axios instance and FormData respectively.
-      const response = await axiosInstance.post('riders/verification/upload/', formdata, {
-        headers: {
-          // Axios usually sets Content-Type correctly for FormData.
-          // If you have issues, you might need to explicitly set it or remove it if the interceptor adds a default one.
-          // 'Content-Type': 'multipart/form-data', // Usually not needed, Axios handles it
-        }
-      });
+      const response = await apiInstance.post('riders/verification/upload/', formdata);
       console.log("Upload successful via Axios:", response.data);
       return response.data; // Axios automatically parses JSON
     } catch (error) {
@@ -74,7 +70,7 @@ export const uploadDocumentsThunk = createAsyncThunk(
 // AsyncThunk for fetching verification status using Axios
 export const fetchVerificationStatusThunk = createAsyncThunk(
   'verification/fetchStatus',
-  async (_, { getState, rejectWithValue }) => {
+  async (_, {  rejectWithValue }) => {
     // Token will be added by the Axios interceptor
     try {
       const response = await axiosInstance.get('riders/verification/status/');

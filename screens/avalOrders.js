@@ -1,6 +1,6 @@
-import React from 'react';
-import { FlatList, View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
-import { Box, Text } from 'native-base';
+import React, { useState,useEffect } from 'react';
+import { FlatList, View, StyleSheet, ActivityIndicator, Alert, PermissionsAndroid, TouchableOpacity } from 'react-native';
+import { Box, Text,Button as NbButton } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import {
   useGetAvailableOrdersQuery,
@@ -8,6 +8,7 @@ import {
   useCancelOrderMutation,
 } from '../store/ordersApi';
 import OrderCard from './OrderCard'; // Assuming OrderCard is now a separate component
+import Geolocation from 'react-native-geolocation-service'; 
 
 const AvailableOrdersScreen = () => {
   const navigation = useNavigation();
@@ -96,7 +97,7 @@ const AvailableOrdersScreen = () => {
   };
   
   // Display loading/error states for location
-  if (!riderLocation && !locationError && !isFetchingOrders) {
+  if (!riderLocation && !locationError ) {
     return (
       <Box flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="teal" />

@@ -18,7 +18,7 @@ const ResetPasswordScreen: React.FC<ResetPasswordScreenProps> = ({ navigation })
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetPassword, { isLoading, error, isSuccess, data }] = useConfirmPasswordResetMutation();
   const dispatch = useDispatch();
-  const resetCodeVerified = useSelector((state: RootState) => state.userAuth.resetCodeVerified);
+  const resetCodeVerified = useSelector((state: RootState) => state.profile.resetCodeVerified);
 
 
   useEffect(() => {

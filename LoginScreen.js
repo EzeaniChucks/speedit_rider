@@ -3,10 +3,10 @@ import { Box } from 'native-base'; // Removed Icon, Input, Pressable
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, View, StyleSheet, StatusBar, ActivityIndicator, Alert } from 'react-native';
 // MaterialIcons import was likely for the native-base Icon, PaperTextInput.Icon uses MaterialCommunityIcons by default for string names
-// import MaterialIcons from '@react-native-vector-icons/ionicons'; // This can be removed if only used for the password icon
+
 import AntIcons from '@react-native-vector-icons/ant-design';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser, clearError, resetAuthState } from './store/authSlice'; // Adjust path
+import { loginUser, clearAuthError, resetAuthState,setAuthStateFromPersisted } from './store/authSlice'; // Adjust path
 import { TextInput as PaperTextInput } from 'react-native-paper'; // Import PaperTextInput
 
 const SignInScreen = ({ navigation }) => {
@@ -15,7 +15,7 @@ const SignInScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
-  const { loading, error, isAuthenticated, userInfo } = useSelector((state) => state.auth);
+  const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -27,13 +27,12 @@ const SignInScreen = ({ navigation }) => {
   // Your useEffect for navigation based on isAuthenticated and userInfo
   // Make sure your userInfo structure and setup completion logic is correct
   useEffect(() => {
-    if (isAuthenticated && userInfo) {
+    if (isAuthenticated && user) {
       // Example: Check if essential profile/vehicle information is present
-      const isProfileComplete = userInfo.vehicleType && 
-                                userInfo.vehicleDetails?.plateNumber &&
-                                (userInfo.verificationStatus === 'verified' || userInfo.verificationStatus === 'approved');
+      //userInfo.vehicleType &&  user.vehicleDetails?.plateNumber &&
+      const isProfileComplete =  (user.verificationStatus === 'verified' || user.verificationStatus === 'approved');
 
-      console.log("User Info for setup check:", userInfo);
+      console.log("User Info for setup check:", user);
       console.log("Is setup considered complete?", isProfileComplete);
 
       if (isProfileComplete) {
@@ -41,16 +40,16 @@ const SignInScreen = ({ navigation }) => {
       } else {
         // If any crucial info is missing or verification isn't 'verified'/'approved'
         // Navigate to a screen where the rider can complete their profile/vehicle details/verification
-        navigation.replace('BecomeRiderScreen'); // Or e.g., 'CompleteProfileScreen', 'VerificationScreen'
+        navigation.replace('DocumentUploadScreen'); // Or e.g., 'CompleteProfileScreen', 'VerificationScreen'
       }
     }
-  }, [isAuthenticated, userInfo, navigation]);
+  }, [isAuthenticated, user, navigation]);
 
 
   useEffect(() => {
     if (error) {
       Alert.alert('Login Error', error.message || 'An unexpected error occurred.');
-      dispatch(clearError());
+      dispatch(clearAuthError());
     }
   }, [error, dispatch]);
 
@@ -63,7 +62,14 @@ const SignInScreen = ({ navigation }) => {
         Alert.alert("Validation Error", "Please enter a valid email address.");
         return;
     }
-    dispatch(loginUser({ email, password }));
+   const resultAction= dispatch(loginUser({ email, password }));
+    console.log('Login result:', loading); // Log the result action
+    if (loginUser.fulfilled.match(resultAction)) {
+      console.log("Login successful:", resultAction.payload.data);
+      // Reset email and password fields after successful login
+     setAuthStateFromPersisted({ token: resultAction.payload.data.token, user: resultAction.payload.data });
+      // setEmail('');
+    }
   };
 
   const handleGoBack = () => {
@@ -94,7 +100,7 @@ const SignInScreen = ({ navigation }) => {
       <StatusBar barStyle={'dark-content'} />
       <Box flexDirection="row" justifyContent="flex-start" alignItems="center" marginBottom={20} width="100%">
         <TouchableOpacity onPress={handleGoBack} style={{ padding: 5 }}>
-            <AntIcons name="arrowleft" size={30} color='teal' />
+            <AntIcons name="arrow-left" size={30} color='teal' />
         </TouchableOpacity>
       </Box>
       <Text style={styles.title}>Sign in</Text>
@@ -130,7 +136,7 @@ const SignInScreen = ({ navigation }) => {
             color="grey" // Or use theme color: paperInputTheme.colors.placeholder
           />
         }
-        // dense // Uncomment if you want a more compact input
+        // dense // Uncomment if you want a more compact input || loading =='pending'
       />
 
       <TouchableOpacity onPress={() => Alert.alert("Forgot Password", "Forgot password functionality to be implemented.")}>
@@ -139,10 +145,10 @@ const SignInScreen = ({ navigation }) => {
 
       <TouchableOpacity
         style={[styles.continueButton, isButtonDisabled && styles.disabledButton]}
-        onPress={handleContinue}
-        disabled={isButtonDisabled || !loading} // Also disable if loading
+        onPress={() => handleContinue()}
+        disabled={isButtonDisabled } // Also disable if loading
       >
-        {!loading ? (
+        {loading =='pending' ? (
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.buttonText}>Continue</Text>

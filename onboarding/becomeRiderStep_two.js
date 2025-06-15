@@ -12,7 +12,7 @@ const BecomeRiderTwoScreen = ({ navigation }) => {
       return;
     }
     // Navigate to the next screen
-    navigation.navigate('DocumentCollectionScreen'); // Replace with your actual next screen name
+    navigation.navigate('DocumentUploadScreen'); // Replace with your actual next screen name
   };
   const [modalVisible, setModalVisible] = useState(false);
 

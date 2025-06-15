@@ -1,46 +1,65 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button, Image } from 'react-native';
+import { View, Text, StyleSheet, Button, Image,  ActivityIndicator } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import Icon from '@react-native-vector-icons/ionicons';
 import { Pressable, VStack ,Box, Icon as Icons, HStack} from 'native-base';
 import OrderSection from './OrderSect';
+import { useDispatch, useSelector } from 'react-redux';
+import { useGetAvailableOrdersQuery } from '../store/ordersApi';
 const RiderActive = () => {
-  const Orders =[
-    { id: '1', restaurant: [{ name: 'Pizza Place', location: '123 Main St' }], customer: [{ name:  'John Doe' }], address: '123 Main St', status: 'pending' },
-    { id: '2', restaurant: [{ name: 'Sushi Spot', location: '123 Main St' }], customer: [{ name:  'Jane Smith' }], address: '456 Elm St', status: 'pending' },
-    { id: '3', restaurant: [{ name: 'Burger Joint', location: '123 Main St' }], customer: [{ name:  'Alice Johnson' }], address: '789 Oak St', status: 'pending' },
-
-  ]
+  const profile= useSelector((state) => state.auth.user);
+ const riderLocation = [7.54, 6.4499834];
+ 
+   // Fetch available orders using the RTK Query hook
+   const {
+     data: ordersResponse,
+     error,
+     isLoading,
+   } = useGetAvailableOrdersQuery({
+     radius: 10000, // Example radius in meters
+     riderLocation,
+   });
+  console.log('error:', error);
+   const availableOrders = ordersResponse?.data || [];
+   console.log("Available Orders:", availableOrders);
+   const notificationCount = availableOrders.length;
+ 
+   const renderOrderSection = () => {
+     if (isLoading) {
+       return <ActivityIndicator size="large" color="teal" style={{ marginTop: 40 }} />;
+     }
+ 
+     if (error) {
+       return <Text style={styles.errorText}>Failed to load orders. Please try again.</Text>;
+     }
+ 
+     if (notificationCount === 0) {
+       return <Text style={styles.notification}>No new orders available right now.</Text>;
+     }
+ 
+     return <OrderSection offers={availableOrders} />;
+   };
   return (
     <View style={styles.container}>
       <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 14.6183,
-          longitude: 121.0541,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker coordinate={{ latitude: 14.6183, longitude: 121.0541 }} />
-        <Marker coordinate={{ latitude: 14.6200, longitude: 121.0585 }} />
-        <Polyline 
-          coordinates={[
-            { latitude: 14.6183, longitude: 121.0541 },
-            { latitude: 14.6200, longitude: 121.0585 },
-          ]}
-          strokeColor="#000" // Customize the path color
-          strokeWidth={3}
-        />
-      </MapView>
+             style={styles.map}
+             initialRegion={{
+               latitude: riderLocation[0],
+               longitude: riderLocation[1],
+               latitudeDelta: 0.01,
+               longitudeDelta: 0.01,
+             }}
+           >
+             <Marker coordinate={{ latitude: riderLocation[0], longitude: riderLocation[1] }} />
+           </MapView>
       <View style={styles.profileContainer}>
         <Image
           source={require('../assests/avatar.jpg')} // Placeholder for user image
           style={styles.profileImage}
         />
         <View style={styles.userInfo}>
-          <Text style={styles.userName}>Ahmad F W</Text>
-          <Text style={styles.userPhone}>+629 5371 7526 86</Text>
+          <Text style={styles.userName}>{profile.firstName+' '+profile.lastName}</Text>
+          <Text style={styles.userPhone}>{profile.phone}</Text>
          
         </View>
         <Pressable p={3} borderRadius={'20'} bgColor={'green.500'} style={styles.onlineStatus}>
@@ -48,22 +67,24 @@ const RiderActive = () => {
             <Text style={styles.onlineText}>Online</Text>
           </Pressable>
       </View>
-      <View style={styles.infoContainer}>
-        <View style={styles.headerContainer}>
-          <Image
-            source={require('../assests/avatar.jpg')} // Replace with your image URL
-            style={styles.profilePicture}
-          />
-          <Text style={styles.headerText}>Restaurant Name/Address</Text>
-        </View>
-
-   <OrderSection offers={Orders} />
-
-      
-        
-        <Text style={styles.notification}>You have 3 new notifications.</Text>
-      </View>
-    </View>
+     <View style={styles.infoContainer}>
+             <View style={styles.headerContainer}>
+               <Image
+                 source={require('../assests/avatar.jpg')}
+                 style={styles.profilePicture}
+               />
+               <Text style={styles.headerText}>New Orders Near You</Text>
+             </View>
+     
+             {renderOrderSection()}
+     
+             {notificationCount > 0 && (
+               <Text style={styles.notification}>
+                 You have {notificationCount} new notification{notificationCount > 1 ? 's' : ''}.
+               </Text>
+             )}
+           </View>
+         </View>
   );
 };
 
