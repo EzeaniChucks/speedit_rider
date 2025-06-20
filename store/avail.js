@@ -1,33 +1,46 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import axiosInstance from './instance'; // Adjust path if needed
 
 // Thunk to fetch current availability status
 export const fetchAvailabilityStatus = createAsyncThunk(
   'availability/fetchStatus',
-  async (_, { rejectWithValue }) => {
+  async (_, {rejectWithValue}) => {
     try {
       const response = await axiosInstance.get('/riders/availability/');
       // Assuming the API returns { status: boolean } or similar
-      console.log('Fetched availability status:', response.data);
+      // console.log('Fetched availability status:', response.data);
       return response.data; // e.g., { status: true }
     } catch (error) {
-      return rejectWithValue(error.response?.data || { message: 'Failed to fetch availability status' });
+      return rejectWithValue(
+        error.response?.data.error ||
+          error.response?.data?.data ||
+          'Failed to update availability status',
+      );
     }
-  }
+  },
 );
 
 // Thunk to update availability status
 export const updateAvailabilityStatus = createAsyncThunk(
   'availability/updateStatus',
-  async (newStatus, { rejectWithValue }) => { // newStatus is a boolean
+  async (newStatus, {rejectWithValue}) => {
+    // newStatus is a boolean
     try {
-      const payload = { status: newStatus };
-      const response = await axiosInstance.post('/riders/availability/', payload);
+      const payload = {status: newStatus};
+      const response = await axiosInstance.post(
+        '/riders/availability/',
+        payload,
+      );
       return response.data; // e.g., { message: "Status updated", status: true }
     } catch (error) {
-      return rejectWithValue(error.response?.data || { message: 'Failed to update availability status' });
+      // console.log('availability error:', error.response.data.error);
+      return rejectWithValue(
+        error.response?.data.error ||
+          error.response?.data?.data ||
+          'Failed to update availability status',
+      );
     }
-  }
+  },
 );
 
 const initialState = {
@@ -42,7 +55,7 @@ const availabilitySlice = createSlice({
   name: 'availability',
   initialState,
   reducers: {
-    resetAvailabilityState: (state) => {
+    resetAvailabilityState: state => {
       state.getStatus = 'idle';
       state.getError = null;
       state.updateStatus = 'idle';
@@ -51,10 +64,10 @@ const availabilitySlice = createSlice({
       // state.isAvailable = false;
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       // Fetch Status
-      .addCase(fetchAvailabilityStatus.pending, (state) => {
+      .addCase(fetchAvailabilityStatus.pending, state => {
         state.getStatus = 'loading';
         state.getError = null;
       })
@@ -68,7 +81,7 @@ const availabilitySlice = createSlice({
         state.getError = action.payload;
       })
       // Update Status
-      .addCase(updateAvailabilityStatus.pending, (state) => {
+      .addCase(updateAvailabilityStatus.pending, state => {
         state.updateStatus = 'loading';
         state.updateError = null;
       })
@@ -86,5 +99,5 @@ const availabilitySlice = createSlice({
   },
 });
 
-export const { resetAvailabilityState } = availabilitySlice.actions;
+export const {resetAvailabilityState} = availabilitySlice.actions;
 export default availabilitySlice.reducer;

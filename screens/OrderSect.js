@@ -10,15 +10,26 @@ import {
 } from 'react-native';
 import {Box, Text, Image, HStack, Pressable, VStack} from 'native-base';
 import {useNavigation} from '@react-navigation/native';
-import {RadioButton} from 'react-native-paper'; // Correct import
-import Icons from '@react-native-vector-icons/ant-design';
-const OrderCard = ({offer, onPress, onAccept}) => {
+
+const OrderCard = ({offer}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReason, setSelectedReason] = useState('');
   const handleSelection = vehicle => {
     setSelectedReason(vehicle);
     // setModalVisible(false);
   };
+
+  const navigation = useNavigation();
+
+  const handlePress = item => {
+    // navigation.navigate('PickupScreen', {order: item});
+    navigation.navigate('OrderDetails', {
+      orderId: item?.id,
+      isHistory: false,
+      // isAccepted: true,
+    });
+  };
+  // console.log("line 23: riderActiveOrders:", offer)
   const vehicleOptions = [
     'Distance is too far',
     'The Order is too small',
@@ -28,41 +39,57 @@ const OrderCard = ({offer, onPress, onAccept}) => {
   ];
   return (
     <Pressable
-      bgColor={'teal.300'}
+      bgColor={'teal.600'}
       style={[styles.offerCard]}
-      onPress={onPress}>
-      <HStack space={4} justifyContent={'space-between'} marginBottom={10}>
+      onPress={() => handlePress(offer)}>
+      <HStack space={4} justifyContent={'space-between'} marginBottom={3}>
         <VStack pl={2} width={'50%'}>
           <Text style={styles.label}>PICK UP</Text>
-          <Text style={styles.address}>Arlegui St </Text>
-          <Text style={styles.addresslower}>at 1066 Zone 039</Text>
+          <Text style={styles.addresslower}>
+            {offer?.pickupLocation?.address}
+          </Text>
+          {/* <Text style={styles.address}>at 1066 Zone 039</Text> */}
         </VStack>
         <VStack width={'40%'}>
           <Text style={styles.label}>EST. FARE</Text>
-          <Text style={styles.fare}> N14</Text>{' '}
+          <Text style={styles.fare}>
+            N {Number(offer?.deliveryFee) + Number(offer?.riderEarnings)}
+          </Text>{' '}
         </VStack>
       </HStack>
       <HStack space={2} justifyContent={'space-between'} alignItems="center">
         <VStack pl={2} width={'50%'}>
           <Text style={styles.label}>DROP OFF</Text>
-          <Text style={styles.address}>Loyola St </Text>
-          <Text style={styles.addresslower}>at 1200 Sampaloc</Text>
+          <Text style={styles.addresslower}>
+            {offer?.deliveryLocation?.address}
+          </Text>
+          {/* <Text style={styles.address}>at 1200 Sampaloc</Text> */}
         </VStack>
-        <VStack width={'40%'}>
-          <Text style={styles.label}>TOTAL DISTANCE</Text>
-          <Text style={styles.distance}>5.4 km</Text>
-          <Box h={4} />
-        </VStack>
+        {offer?.status === 'pending' ? (
+          <VStack width={'40%'}>
+            <Text style={styles.label}>TOTAL DISTANCE</Text>
+            <Text style={styles.distance}>{offer?.distance} km</Text>
+          </VStack>
+        ) : (
+          <VStack width={'40%'}>
+            <Text style={styles.label}>Ongoing Order Status</Text>
+            <View style={styles.orderStatus}>
+              <Text style={{fontSize: 13, color: 'white'}}>
+                {offer?.status?.toUpperCase()}
+              </Text>
+            </View>
+          </VStack>
+        )}
       </HStack>
-      <View style={styles.buttonContainer}>
+      {/* <View style={styles.buttonContainer}>
         <Button
           title="Ignore"
           color="#ff4d4d"
           onPress={() => setModalVisible(true)}
         />
         <Button title="Accept" color="teal" onPress={onPress} />
-      </View>
-      <Modal
+      </View> */}
+      {/* <Modal
         transparent={true}
         animationType="slide"
         visible={modalVisible}
@@ -102,32 +129,18 @@ const OrderCard = ({offer, onPress, onAccept}) => {
             </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </Modal> */}
     </Pressable>
   );
 };
 
 const OrderSection = ({offers}) => {
-  //   if (!offers || offers.length === 0) {
-  //     return null;
-  //   }
-  const navigation = useNavigation();
-
-  const handlePress = (item) => {
-    navigation.navigate('PickupScreen', {order: item});
-  };
   return (
     <Box style={styles.container}>
       <FlatList
         data={offers}
-        renderItem={({item}) => (
-          <OrderCard
-            offer={item}
-            onPress={() => handlePress(item)}
-          />
-        )}
+        renderItem={({item}) => <OrderCard offer={item} />}
         keyExtractor={item => item?.id?.toString()}
-        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.offerList}
       />
@@ -139,14 +152,12 @@ const styles = StyleSheet.create({
   container: {
     height: 330,
     backgroundColor: 'white',
-    marginTop: 30,
-    width: '98%',
-    left: 4,
+    width: '100%',
     flex: 1,
     paddingTop: 11,
-    paddingLeft: 2,
     paddingBottom: 20,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     justifyContent: 'space-between',
@@ -168,19 +179,17 @@ const styles = StyleSheet.create({
     paddingRight: 16, // Add some padding to the end of the list
   },
   offerCard: {
-    width: "auto",
-    height: 450,
-    // backgroundColor: 'blue',
+    width: '100%',
     borderRadius: 12,
     marginRight: 16,
     marginTop: 10,
-    overflow: 'hidden',
     padding: 10,
   },
   label: {
     fontSize: 14,
-    color: 'teal',
+    color: 'white',
     marginTop: 10,
+    marginBottom: 5,
   },
   address: {
     fontSize: 20,
@@ -188,12 +197,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   addresslower: {
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: '600',
     color: '#f4f4f4',
   },
   distance: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#f4f4f4',
+    fontWeight: 'bold',
+  },
+  orderStatus: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00695C',
+    padding: 3,
+    borderRadius: 15,
     fontWeight: 'bold',
   },
   fare: {

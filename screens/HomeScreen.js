@@ -1,12 +1,4 @@
-import {
-  Button,
-  Pressable,
-  VStack,
-  Box,
-  Icon as Icons,
-  HStack,
-  Switch,
-} from 'native-base';
+import {Box, Icon as Icons, HStack} from 'native-base';
 import React, {useEffect} from 'react';
 import {
   View,
@@ -14,18 +6,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image,
-  Modal,
 } from 'react-native';
 import {Card} from 'react-native-paper';
 import Icon from '@react-native-vector-icons/ionicons';
 import FontAwesome from '@react-native-vector-icons/fontawesome6';
 import {navigate} from '../NavigationService';
-import {
-  fetchAvailabilityStatus,
-  // fetchAvailabilityStatus,
-  updateAvailabilityStatus,
-} from '../store/avail'; // Adjust path
+import {updateAvailabilityStatus} from '../store/avail'; // Adjust path
 import {
   useGetAvailableOrdersQuery,
   useGetWalletBalanceQuery,
@@ -33,8 +19,8 @@ import {
 
 import {useDispatch, useSelector} from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
-import NotifySwitch from './availabiltyStatus';
 import {useGetRiderProfileQuery} from '../store/api';
+import UserProfileCard from './components/userProfileCard';
 
 const DashboardScreen = () => {
   const dispatch = useDispatch();
@@ -52,24 +38,13 @@ const DashboardScreen = () => {
   const {data: balanceData, isLoading: isBalanceLoading} =
     useGetWalletBalanceQuery();
   console.log('Balance Data:', balanceData);
-  
+
   const {
     isAvailable,
     updateStatus: availabilityUpdateStatus,
     getStatus: availabilityGetStatus,
   } = useSelector(state => state.availability);
 
-  useEffect(() => {
-    dispatch(fetchAvailabilityStatus());
-    console.log(
-      'Availability Status:',
-      isAvailable,
-      'Update Status:',
-      availabilityUpdateStatus,
-      'Get Status:',
-      availabilityGetStatus,
-    );
-  }, [dispatch]);
   const handleToggleAvailability = newValue => {
     if (availabilityUpdateStatus === 'loading') return; // Prevent spamming
     dispatch(updateAvailabilityStatus(newValue));
@@ -79,292 +54,199 @@ const DashboardScreen = () => {
   const wallet = balanceData?.data;
   // const pendingRequestsCount = availableOrdersData?.data?.length || 0;
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      contentContainerStyle={[styles.scrollContainer, {paddingBottom: 0}]}
+      showsVerticalScrollIndicator={false}
+      style={styles.container}>
+      {/* Header Section */}
       <View style={styles.headerContainer}>
-        <Box style={styles.header}></Box>
-        <View style={styles.profileContainer}>
-          <Image
-            source={require('../assests/avatar.jpg')} // Placeholder for user image
-            style={styles.profileImage}
-          />
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>
-              {profile?.firstName + ' ' + profile?.lastName}
-            </Text>
-            <Text style={styles.userPhone}>{profile?.phone}</Text>
-          </View>
+        <UserProfileCard />
 
-          <View style={styles.headertop}>
-            <Text style={styles.headerText}>
-              {isAvailable ? 'You are Online' : 'You are Offline'}
-            </Text>
-            <NotifySwitch />
-          </View>
-        </View>
-        <View style={styles.cardContainer}>
+        {/* Stats Cards - Top Row */}
+        <View style={styles.cardRow}>
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Balance</Text>
-            <Text style={styles.cardAmount}>10,000 NGN</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>Balance</Text>
+              <Text style={styles.cardAmount}>10,000 NGN</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Total Income</Text>
-            <Text style={styles.cardAmount}>100,000 NGN</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>Total Income</Text>
+              <Text style={styles.cardAmount}>100,000 NGN</Text>
+            </View>
           </TouchableOpacity>
         </View>
-        <View style={styles.cardContainer}>
+
+        {/* Stats Cards - Bottom Row */}
+        <View style={styles.cardRow}>
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Pending Requests</Text>
-            <Text style={styles.cardAmount}>2</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>Pending Requests</Text>
+              <Text style={styles.cardAmount}>2</Text>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.cardTitle}>Completed Requests</Text>
-            <Text style={styles.cardAmount}>10</Text>
+            <View style={styles.cardContent}>
+              <Text style={styles.cardTitle}>Completed Requests</Text>
+              <Text style={styles.cardAmount}>10</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
-      <Box height={400} />
-      <Box bgColor={'teal.300'} style={styles.summaryContainer}>
-        <Text style={styles.header}>Yesterday</Text>
-        <HStack justifyContent={'space-between'} mt={5} alignItems={'center'}>
-          <Box width={'50%'}>
-            <Text style={styles.text}>MONEY EARNED</Text>
-            {
-              //fetching the amount for transactions yesterday
-              // This is a placeholder, replace with actual data fetching logic
-              // For example, you might fetch this from your Redux store or API
-            }
-            <Text style={styles.amount}>N 280</Text>
-          </Box>
-          <Box width={'40%'}>
-            <Text style={styles.text}>HOURS ONLINE</Text>
-            <Text style={styles.amount}>8.5 hrs</Text>
-          </Box>
-        </HStack>
-        <HStack justifyContent={'space-between'} alignItems={'center'}>
-          <Box width={'50%'}>
-            <Text style={styles.text}>TOTAL DISTANCE</Text>
-            <Text style={styles.amount}>24 km</Text>
-          </Box>
-          <Box width={'40%'}>
-            <Text style={styles.text}>TOTAL JOBS</Text>
-            <Text style={styles.amount}>20</Text>
-          </Box>
-        </HStack>
-        <Box height={100} />
-        {/* Go Online Button */}
+
+      {/* Summary Section */}
+      <View style={[styles.summaryContainer, {marginBottom: 0}]}>
+        <Text style={styles.summaryHeader}>Yesterday</Text>
+
+        <View style={styles.summaryGrid}>
+          {/* First Row */}
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>MONEY EARNED</Text>
+            <Text style={styles.summaryValue}>₦280</Text>
+          </View>
+
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>HOURS ONLINE</Text>
+            <Text style={styles.summaryValue}>8.5 hrs</Text>
+          </View>
+
+          {/* Second Row */}
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>TOTAL DISTANCE</Text>
+            <Text style={styles.summaryValue}>24 km</Text>
+          </View>
+
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>TOTAL JOBS</Text>
+            <Text style={styles.summaryValue}>20</Text>
+          </View>
+        </View>
+
+        {/* Action Button */}
         <TouchableOpacity
-          onPress={() => navigate('RiderActive')}
-          style={styles.button}>
-          <Text style={styles.buttonText}>Go online</Text>
+          onPress={() => navigate('RiderActiveOrders')}
+          style={styles.primaryButton}>
+          <Text style={styles.buttonText}>Get New Orders</Text>
+          <Icon
+            name="arrow-forward"
+            size={20}
+            color="white"
+            style={styles.buttonIcon}
+          />
         </TouchableOpacity>
-      </Box>
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    // backgroundColor: '#F0F8FF',
-    padding: 0,
+    flex: 1,
+    marginBottom: -1, // Counteracts any default margin
+  },
+  scrollContainer: {
+    flexGrow: 1, // Ensures content fills available space
+    justifyContent: 'space-between',
   },
   headerContainer: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: 'teal',
-    borderBottomLeftRadius: '5%',
-    borderBottomRightRadius: '5%',
+    backgroundColor: '#00897B',
+    padding: 24,
+    paddingTop: 120,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 16,
   },
-  button: {
-    backgroundColor: 'teal',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  cardContainer: {
+  cardRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 16,
   },
   card: {
-    borderColor: '#F5F7F5',
-    borderWidth: 1,
+    width: '48%',
     backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    marginVertical: 10,
-    flex: 0.45,
-    alignItems: 'flex-end',
+    borderRadius: 12,
+    padding: 16,
+    minHeight: 120,
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardContent: {
+    alignItems: 'flex-start',
   },
   cardTitle: {
-    fontSize: 15,
-    color: 'black',
-    fontFamily: 'Sans-Serif',
+    fontSize: 14,
+    color: '#616161',
+    marginBottom: 8,
+    fontFamily: 'Roboto-Medium',
   },
   cardAmount: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'teal',
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#00796B',
+  },
+  summaryContainer: {
+    backgroundColor: '#00695C',
+    padding: 24,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     marginTop: 5,
   },
-  footer: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: '#F0F8FF',
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-
-  profileContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    justifyContent: 'space-between',
-    backgroundColor: 'white',
-    borderRadius: 20,
-    marginBottom: 20,
-    alignItems: 'center',
-    borderColor: 'teal',
-    borderWidth: 1,
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  userInfo: {
-    marginLeft: 10,
-  },
-  userName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  userPhone: {
-    fontSize: 14,
-    color: '#666',
-  },
-  onlineStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-  },
-  onlineText: {
-    marginLeft: 5,
+  summaryHeader: {
+    fontSize: 22,
+    fontWeight: '700',
     color: 'white',
+    marginBottom: 24,
   },
-  mapContainer: {
-    height: 200,
-
+  summaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  summaryItem: {
+    width: '48%',
     marginBottom: 20,
   },
-  ordersCard: {
-    borderRadius: 12,
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: 'white',
+  summaryLabel: {
+    fontSize: 13,
+    color: '#B2DFDB',
+    fontWeight: '500',
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  earnings: {
+  summaryValue: {
     fontSize: 18,
-    color: '#FFD700',
-  },
-  earningstitle: {
-    fontSize: 18,
-    color: 'black',
-  },
-  earningspaid: {
-    fontSize: 14,
-    color: 'teal',
-  },
-  orderItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 5,
-  },
-  orderName: {
-    fontSize: 16,
-  },
-  orderDistance: {
-    fontSize: 14,
-    color: '#666',
-  },
-  orderDetail: {
-    fontSize: 12,
-    color: '#999',
-    marginBottom: 10,
-  },
-  footerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  footerDetails: {
-    fontSize: 14,
-    color: '#808080',
-  },
-  dateContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  headertop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  summaryContainer: {
-    // backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontWeight: '700',
     color: 'white',
   },
-  text: {
-    fontSize: 16,
-    marginBottom: 5,
-    color: 'teal',
+  primaryButton: {
+    backgroundColor: '#00796B',
+    padding: 16,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  amount: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
+  buttonText: {
     color: 'white',
-  },
-  dateText: {
+    fontWeight: '600',
     fontSize: 16,
-    fontWeight: 'bold',
+    marginRight: 8,
   },
-  dateInfo: {
-    fontSize: 14,
-    color: '#808080',
+  buttonIcon: {
+    marginLeft: 4,
   },
 });
 

@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { RootState } from '../store'; // Adjust path if necessary
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+import type {RootState} from '../store'; // Adjust path if necessary
 
 const BASE_URL = 'https://speedit-server.onrender.com/v1/api/'; // Your API base URL
 
@@ -8,7 +8,7 @@ export const riderApi = createApi({
   reducerPath: 'riderApi',
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers, {getState}) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
@@ -18,12 +18,12 @@ export const riderApi = createApi({
     },
   }),
   tagTypes: ['Profile'], // For cache invalidation
-  endpoints: (builder) => ({
+  endpoints: builder => ({
     loginRider: builder.mutation<
-      { token: string; user?: any /* Define user type */ }, // Response type
-      { email: string; password: string } // Argument type
+      {token: string; user?: any /* Define user type */}, // Response type
+      {email: string; password: string} // Argument type
     >({
-      query: (credentials) => ({
+      query: credentials => ({
         url: 'riders/login/',
         method: 'POST',
         body: credentials,
@@ -32,26 +32,35 @@ export const riderApi = createApi({
       }),
     }),
     // This is a HYPOTHETICAL endpoint. Adjust to your backend.
-    requestPasswordResetOtp: builder.mutation<{ message: string }, { email: string }>({
-      query: ({ email }) => ({
+    requestPasswordResetOtp: builder.mutation<
+      {message: string},
+      {email: string}
+    >({
+      query: ({email}) => ({
         url: 'riders/password/request-otp', // Example: You need an endpoint for this
         method: 'POST',
-        body: { email },
+        body: {email},
       }),
     }),
-    verifyPasswordResetCode: builder.mutation<{ message: string; success: boolean }, { code: string }>({
-      query: ({ code }) => ({
+    verifyPasswordResetCode: builder.mutation<
+      {message: string; success: boolean},
+      {code: string}
+    >({
+      query: ({code}) => ({
         url: 'riders/me/password/verify-reset',
         method: 'POST',
-        body: { code },
+        body: {code},
       }),
     }),
     // This maps to your "initiate-reset" endpoint that takes a newPassword
-    confirmPasswordReset: builder.mutation<{ message: string }, { newPassword: string }>({
-      query: ({ newPassword }) => ({
+    confirmPasswordReset: builder.mutation<
+      {message: string},
+      {newPassword: string}
+    >({
+      query: ({newPassword}) => ({
         url: 'riders/me/password/initiate-reset',
         method: 'POST',
-        body: { newPassword },
+        body: {newPassword},
       }),
     }),
     getRiderProfile: builder.query<any /* Define profile type */, void>({
@@ -60,9 +69,9 @@ export const riderApi = createApi({
     }),
     updateRiderProfile: builder.mutation<
       any, // Response type
-      Partial<{ firstName: string; vehicleDetails: { color: string } }> // Argument type
+      Partial<{firstName: string; vehicleDetails: {color: string}}> // Argument type
     >({
-      query: (profileData) => ({
+      query: profileData => ({
         url: 'riders/profile/',
         method: 'PUT',
         body: profileData,

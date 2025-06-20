@@ -19,13 +19,14 @@ import {
   useUpdateOrderStatusMutation,
 } from '../store/ordersApi'; // Adjust path
 import {useNavigation, useRoute} from '@react-navigation/native';
+import UserProfileCard from './components/userProfileCard';
 
 const PickupScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const {order} = route.params; // Get the order details from navigation
 
-  console.log(order)
+  console.log("from pickup screen" ,order)
 
   const [cancelOrder, {isLoading: isCancelling}] = useCancelOrderMutation();
   const [updateStatus, {isLoading: isUpdatingStatus}] =
@@ -73,7 +74,7 @@ const PickupScreen = () => {
     }
   };
   return (
-    <Box bg={'teal.300'} style={styles.container}>
+    <Box style={styles.container}>
       <StatusBar barStyle={'default'} />
       <MapView
         style={styles.map}
@@ -90,8 +91,8 @@ const PickupScreen = () => {
           strokeWidth={3}
         />
       </MapView>
-      <RiderStatus />
-      <Box p={5}>
+      <UserProfileCard />
+      <Box bg={'teal.500'} p={5}>
         <Text style={styles.title}>PICK UP</Text>
         <Text style={styles.restaurantName}>Restaurant at Location</Text>
         <Text style={styles.address}>{order.pickupAddress}</Text>
@@ -149,6 +150,8 @@ const PickupScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    // alignItems: "center",
+    // justifyContent: "center"
     //backgroundColor:'teal'
   },
   avatar: {
@@ -157,14 +160,15 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   title: {
-    fontSize: 18,
-    color: 'teal',
+    fontSize: 15,
+    fontWeight: "700",
+    color: 'white',
     marginVertical: 5,
   },
   restaurantName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFF',
+    color: 'teal',
   },
   address: {
     fontSize: 16,

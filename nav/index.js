@@ -1,19 +1,20 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen'; // Assume you have a HomeScreen component
-import EarningsScreen from '../screens/EarningsScreen'; // Earnings component
-import MessagesScreen from '../screens/MessagesScreen'; // Messages component
-import ProfileScreen from '../screens/ProfileScreen'; // Profile component
-import Ionicons  from '@react-native-vector-icons/ionicons';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import HomeScreen from '../screens/HomeScreen';
+import EarningsScreen from '../screens/EarningsScreen';
+import MessagesScreen from '../screens/MessagesScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import Ionicons from '@react-native-vector-icons/ionicons'; // Fixed import name
 import OrderHistoryScreen from '../screens/historyOrder';
+import RiderActiveOrders from '../screens/RiderActiveOrders';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
           let iconName;
 
           switch (route.name) {
@@ -21,7 +22,7 @@ const BottomTabNavigator = () => {
               iconName = focused ? 'home' : 'home-outline';
               break;
             case 'Earnings':
-              iconName = focused ? 'home' : 'cash-outline';
+              iconName = focused ? 'cash' : 'cash-outline';
               break;
             case 'Orders':
               iconName = focused ? 'chatbubble' : 'chatbubble-outline';
@@ -33,14 +34,52 @@ const BottomTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#00C48C',
-        tabBarInactiveTintColor: 'gray', headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="EarningsScreen" component={EarningsScreen} />
-      <Tab.Screen name="Messages" component={OrderHistoryScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: '#008A63', // Teal background
+          height: 60,
+          paddingBottom: 5,
+          borderTopWidth: 0,
+          elevation: 10, // Android shadow
+          shadowColor: '#000', // iOS shadow
+          shadowOffset: {width: 0, height: -2},
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginBottom: 4,
+        },
+      })}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{tabBarLabel: 'Home'}}
+      />
+      <Tab.Screen
+        name="Earnings"
+        component={EarningsScreen}
+        options={{tabBarLabel: 'Earnings'}}
+      />
+      {/* Unified Orders Screen */}
+      <Tab.Screen
+        name="RiderActiveOrders"
+        component={RiderActiveOrders}
+        options={{
+          tabBarLabel: 'Orders',
+          tabBarIcon: ({color, size}) => (
+            <Ionicons name="list" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{tabBarLabel: 'Profile'}}
+      />
     </Tab.Navigator>
   );
 };

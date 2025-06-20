@@ -1,4 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+import {setAvailableOrders, setSelectedOrder} from './ordersSlice';
 
 // Define your base URL
 const BASE_URL = 'https://speedit-server.onrender.com/v1/api/riders/';
@@ -31,7 +32,32 @@ export const ordersApi = createApi({
           ',',
         )}]`,
       providesTags: ['AvailableOrders'],
+      // Optionally add this to automatically update the cache
+      onQueryStarted: async (arg, {dispatch, queryFulfilled}) => {
+        try {
+          const {data} = await queryFulfilled;
+          dispatch(setAvailableOrders(data?.data));
+        } catch (error) {
+          console.error('Failed to fetch orders:', error);
+        }
+      },
     }),
+
+    getOrderDetails: builder.query({
+      query: orderId => `orders/${orderId}`,
+      providesTags: result =>
+        result ? [{type: 'Order', id: result.id}] : ['Order'],
+      onQueryStarted: async (arg, {dispatch, queryFulfilled}) => {
+        try {
+          const {data} = await queryFulfilled;
+          console.log('here is the order details from rtk api:', data);
+          dispatch(setSelectedOrder(data?.data));
+        } catch (error) {
+          console.error('Failed to fetch order details:', error);
+        }
+      },
+    }),
+
     acceptOrder: builder.mutation({
       query: orderId => ({
         url: `orders/${orderId}/accept/`,
@@ -72,11 +98,12 @@ export const ordersApi = createApi({
       // Potentially invalidate CurrentOrder or Order if it affects its state
       invalidatesTags: ['CurrentOrder', 'Order'],
     }),
-    getOrderDetails: builder.query({
-      // Example: if you need details of a specific order
-      query: orderId => `orders/${orderId}/`, // Assuming such an endpoint exists
-      providesTags: (result, error, orderId) => [{type: 'Order', id: orderId}],
-    }),
+
+    // getOrderDetails: builder.query({
+    //   // Example: if you need details of a specific order
+    //   query: orderId => `orders/${orderId}/`, // Assuming such an endpoint exists
+    //   providesTags: (result, error, orderId) => [{type: 'Order', id: orderId}],
+    // }),
 
     // === LOCATION TRACKING ===
     updateRiderLocation: builder.mutation({
@@ -148,6 +175,7 @@ export const ordersApi = createApi({
 
 export const {
   useGetAvailableOrdersQuery,
+  // useGetOrderDetailsQuery,
   useAcceptOrderMutation,
   useCancelOrderMutation,
   useGetOrderHistoryQuery,

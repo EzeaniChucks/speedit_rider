@@ -1,4 +1,4 @@
-// NotifySwitch.js
+// AvailabilityToggle.js
 import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
@@ -16,9 +16,9 @@ import {
   fetchAvailabilityStatus,
   updateAvailabilityStatus,
   resetAvailabilityState,
-} from '../store/avail'; // Adjust path
+} from '../../store/avail'; // Adjust path
 
-const NotifySwitch = () => {
+const AvailabilityToggle = () => {
   const dispatch = useDispatch();
   const {isAvailable, getStatus, getError, updateStatus, updateError} =
     useSelector(state => state.availability);
@@ -31,10 +31,6 @@ const NotifySwitch = () => {
   useEffect(() => {
     const resultAction = dispatch(fetchAvailabilityStatus());
     if (fetchAvailabilityStatus.fulfilled.match(resultAction)) {
-      console.log(
-        'Availability status fetched successfully:',
-        resultAction.payload.data,
-      );
       setLocalIsEnabled(resultAction.payload.data.isAvailable); // Assuming the API
     }
     // setLocalIsEnabled()
@@ -59,16 +55,12 @@ const NotifySwitch = () => {
   // Handle API call errors
   useEffect(() => {
     if (getStatus === 'failed' && getError) {
-      Alert.alert(
-        'Error',
-        getError.message || 'Could not fetch availability status.',
-      );
-      console.log('Fetch Error:', getError);
+      Alert.alert('Error', getError || 'Could not fetch availability status.');
     }
     if (updateStatus === 'failed' && updateError) {
       Alert.alert(
         'Error',
-        updateError.message || 'Could not update availability status.',
+        updateError || 'Could not update availability status.',
       );
       // Revert optimistic update if you had one, by re-fetching or setting localIsEnabled
       setLocalIsEnabled(isAvailable); // Revert to last known good state from Redux
@@ -102,7 +94,7 @@ const NotifySwitch = () => {
     }
 
     const newApiStatus = !localIsEnabled; // The status we want to send to the API
-    console.log();
+
     // Optimistically update UI (optional, but can make it feel snappier)
     // The useEffect for [isAvailable] will correct this if API fails and state reverts.
     setLocalIsEnabled(newApiStatus);
@@ -191,4 +183,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotifySwitch;
+export default AvailabilityToggle;
