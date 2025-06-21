@@ -28,7 +28,7 @@ const DashboardScreen = () => {
     state => state.auth,
   );
   const profile = user;
-  console.log('Profile Data:', profile);
+  // console.log('Profile Data:', profile);
   const {
     data: profileResponse,
     isLoading: isProfileLoading,

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import LoginScreen from './LoginScreen';
+import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import OrderListScreen from './OrderListScreen';
 import OrderDetailsScreen from './OrderDetailsScreen';
@@ -42,6 +42,11 @@ import AvailableOrdersScreen from './screens/avalOrders';
 import AvailableRidersScreen from './screens/availDash';
 import OrderProgressScreen from './screens/OrderProgressionScreen';
 import DeliveryAcknowledgement from './screens/DeliveryAcknowledgement';
+import EditProfileScreen from './screens/profile/userProfileEditScreen';
+import InitiatePasswordResetScreen from './screens/profile/initiatePasswordResetScreen';
+import VerifyPasswordResetScreen from './screens/profile/verifyPasswordResetScreen';
+import PasswordResetSuccessScreen from './screens/profile/passwordResetSuccessScreen';
+
 const Stack = createStackNavigator();
 
 const RootNavigation = () => {
@@ -258,25 +263,12 @@ const RootNavigation = () => {
                 name="LicenseCollectionScreen"
                 component={LicenseCollectionScreen}
               />
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="BottomTabNavigator"
                 component={BottomTabNavigator}
-              />
+              /> */}
               {/* Main App (With tabs) */}
-              <Stack.Screen name="MainApp">
-                {() => (
-                  <BottomTabNavigator>
-                    <Tab.Screen name="Home" component={HomeScreen} />
-                    <Tab.Screen name="Earnings" component={EarningsScreen} />
-                    <Tab.Screen name="Profile" component={ProfileScreen} />
-                    <Tab.Screen
-                      name="RiderActiveOrders"
-                      component={RiderActiveOrders}
-                    />
-                  </BottomTabNavigator>
-                )}
-              </Stack.Screen>
-
+              <Stack.Screen name="MainApp" component={BottomTabNavigator} />
               <Stack.Screen name="OrderList" component={OrderListScreen} />
               {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
               {/* <Stack.Screen name="OrderList" component={OrderListScreen} /> */}
@@ -303,7 +295,35 @@ const RootNavigation = () => {
                 name="DeliveryAcknowledgement"
                 component={DeliveryAcknowledgement}
               />
-              {/* <Stack.Screen name="Earnings" component={EarningsScreen} /> */}
+
+              {/* Profile Management */}
+              {/* NB: Profile view is added as a tab to bottomTabNavigation above */}
+
+              <Stack.Screen
+                name="EditProfile"
+                component={EditProfileScreen}
+                options={{headerShown: false}}
+              />
+              
+              {/* // In your navigation stack */}
+              
+              <Stack.Screen
+                name="InitiatePasswordReset"
+                component={InitiatePasswordResetScreen}
+                options={{headerShown: false}}
+              />
+
+              <Stack.Screen
+                name="VerifyPasswordReset"
+                component={VerifyPasswordResetScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="PasswordResetSuccess"
+                component={PasswordResetSuccessScreen}
+                options={{headerShown: false}}
+              />
+
               <Stack.Screen
                 name="avalRides"
                 component={AvailableRidersScreen}

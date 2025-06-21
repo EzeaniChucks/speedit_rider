@@ -2,11 +2,12 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import EarningsScreen from '../screens/EarningsScreen';
-import MessagesScreen from '../screens/MessagesScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+// import MessagesScreen from '../screens/MessagesScreen';
+// import ProfileScreen from '../screens/ProfileScreen';
 import Ionicons from '@react-native-vector-icons/ionicons'; // Fixed import name
-import OrderHistoryScreen from '../screens/historyOrder';
+// import OrderHistoryScreen from '../screens/historyOrder';
 import RiderActiveOrders from '../screens/RiderActiveOrders';
+import RiderProfileScreen from '../screens/profile/userProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -75,10 +76,16 @@ const BottomTabNavigator = () => {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Profile"
         component={ProfileScreen}
         options={{tabBarLabel: 'Profile'}}
+      /> */}
+      <Tab.Screen
+        name="Profile"
+        component={RiderProfileScreen}
+        options={{tabBarLabel: 'Profile', headerShown: false}}
+        // options={{}}
       />
     </Tab.Navigator>
   );

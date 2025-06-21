@@ -6,7 +6,7 @@ import StyledButton from './components/StyledButton';
 import LoadingOverlay from './components/LoadingOverlay';
 import { VerifyOtpScreenProps } from './nav.types';
 import { useVerifyPasswordResetCodeMutation } from './store/api';
-import { setResetCodeVerified } from './store/profile';
+import { setResetCodeVerified } from './store/profileSlice';
 import { colors } from './theme/colors';
 import { globalStyles } from './theme/style';
 import Card from './components/Cards';

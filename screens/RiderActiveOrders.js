@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import OrderSection from './OrderSect';
 import {useGetAvailableOrdersQuery} from '../store/ordersApi';
 import {skipToken} from '@reduxjs/toolkit/query';
 import UserProfileCard from './components/userProfileCard';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
 
@@ -104,17 +104,15 @@ const RiderActiveOrders = () => {
       : skipToken,
   );
 
-  // const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   // console.log('orderActive response', ordersResponse);
-  //   if (ordersResponse?.data) {
-  //     dispatch(setAvailableOrders(ordersResponse.data));
-  //   }
-  // }, [ordersResponse, dispatch]);
-
-  // const availableOrders = ordersResponse?.data || [];
-  // const notificationCount = availableOrders.length;
+  // // This will run whenever the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (riderLocation) {
+        // Only refetch if riderLocation exists
+        refetchOrders();
+      }
+    }, [refetchOrders, riderLocation]),
+  );
 
   if (!riderLocation) {
     return (

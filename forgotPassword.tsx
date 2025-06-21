@@ -6,7 +6,7 @@ import StyledButton from './components/StyledButton';
 import LoadingOverlay from './components/LoadingOverlay';
 import { ForgotPasswordScreenProps } from './nav.types';
 import { useRequestPasswordResetOtpMutation } from './store/api';
-import { setEmailForPasswordReset } from './store/profile';
+import { setEmailForPasswordReset } from './store/profileSlice';
 import { colors } from './theme/colors';
 import { globalStyles } from './theme/style';
 import Card from './components/Cards';

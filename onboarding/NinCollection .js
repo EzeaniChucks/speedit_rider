@@ -33,7 +33,7 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
             // dispatch(fetchVerificationStatusThunk());
             dispatch(resetUploadState());
             dispatch(clearAllPhotos()); // Clear photos from redux
-            navigation.navigate('BottomTabNavigator'); // Or a success/status screen
+            navigation.navigate('MainApp'); // Or a success/status screen
           }
         }
       ]);

@@ -11,7 +11,7 @@ import {
 
 // Screens
 import AuthLoadingScreen from './screens/AuthLoadingScreen';
-import LoginScreen from './LoginScreen';
+import LoginScreen from './screens/LoginScreen';
 import ForgotPasswordScreen from './forgotPassword';
 import VerifyOtpScreen from './verifyOtp';
 import ResetPasswordScreen from './screens/restpassword';

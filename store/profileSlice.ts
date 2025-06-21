@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
 interface RiderProfile {
   id: string;
@@ -15,7 +15,6 @@ interface RiderProfile {
 }
 
 interface ProfileState {
-  token: string | null;
   user: RiderProfile | null;
   isAuthenticated: boolean;
   // temp state for password reset flow
@@ -24,38 +23,34 @@ interface ProfileState {
 }
 
 const initialState: ProfileState = {
-  token: null,
   user: null,
   isAuthenticated: false,
   emailForPasswordReset: null,
   resetCodeVerified: false,
 };
 
-
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{ token: string; user?: RiderProfile }>
-    ) => {
-      state.token = action.payload.token;
-      if (action.payload.user) {
-        state.user = action.payload.user;
+    setUserProfile: (state, action: PayloadAction<RiderProfile>) => {
+      if (action.payload) {
+        state.user = action.payload;
       }
-      state.isAuthenticated = true;
+      // state.isAuthenticated = true;
     },
-    logout: (state) => {
-      state.token = null;
+    logout: state => {
       state.user = null;
       state.isAuthenticated = false;
       state.emailForPasswordReset = null;
       state.resetCodeVerified = false;
     },
-    updateUserProfile: (state, action: PayloadAction<Partial<RiderProfile>>) => {
+    updateUserProfile: (
+      state,
+      action: PayloadAction<Partial<RiderProfile>>,
+    ) => {
       if (state.user) {
-        state.user = { ...state.user, ...action.payload };
+        state.user = {...state.user, ...action.payload};
       }
     },
     setEmailForPasswordReset: (state, action: PayloadAction<string | null>) => {
@@ -68,7 +63,7 @@ const profileSlice = createSlice({
 });
 
 export const {
-  setCredentials,
+  setUserProfile,
   logout,
   updateUserProfile,
   setEmailForPasswordReset,

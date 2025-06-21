@@ -12,7 +12,7 @@ axiosInstance.interceptors.request.use(
     const state = store.getState();
     const {auth} = state; // Get token from Redux store
     const token = auth?.token; // Adjust according to your auth slice structure
-    console.log('Axios Request:', token)
+    // console.log('Axios Request:', token)
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }

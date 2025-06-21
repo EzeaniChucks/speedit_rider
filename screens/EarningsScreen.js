@@ -28,14 +28,14 @@ const EarningsScreen = () => {
     status: balanceStatus,
     error: balanceError,
   } = useSelector(state => state.wallet);
-  console.log(
-    'Balance:',
-    balance,
-    'Status:',
-    balanceStatus,
-    'Error:',
-    balanceError,
-  );
+  // console.log(
+  //   'Balance:',
+  //   balance,
+  //   'Status:',
+  //   balanceStatus,
+  //   'Error:',
+  //   balanceError,
+  // );
   // Static chart data as in original, can be dynamic later
   const chartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],

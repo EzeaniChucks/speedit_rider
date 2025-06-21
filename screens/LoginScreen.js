@@ -20,7 +20,7 @@ import {
   clearAuthError,
   resetAuthState,
   setAuthStateFromPersisted,
-} from './store/authSlice'; // Adjust path
+} from '../store/authSlice'; // Adjust path
 import {TextInput as PaperTextInput} from 'react-native-paper'; // Import PaperTextInput
 
 const SignInScreen = ({navigation}) => {
@@ -54,7 +54,7 @@ const SignInScreen = ({navigation}) => {
       console.log('Is setup considered complete?', isProfileComplete);
 
       if (isProfileComplete) {
-        navigation.replace('BottomTabNavigator');
+        navigation.replace('MainApp');
       } else {
         // If any crucial info is missing or verification isn't 'verified'/'approved'
         // Navigate to a screen where the rider can complete their profile/vehicle details/verification
@@ -128,7 +128,7 @@ const SignInScreen = ({navigation}) => {
         marginBottom={20}
         width="100%">
         <TouchableOpacity onPress={handleGoBack} style={{padding: 5}}>
-          <AntIcons name="arrow-left" size={30} color="teal" />
+          <AntIcons name="left-circle" size={30} color="teal" />
         </TouchableOpacity>
       </Box>
       <Text style={styles.title}>Sign in</Text>

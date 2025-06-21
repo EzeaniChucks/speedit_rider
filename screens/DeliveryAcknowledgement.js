@@ -95,14 +95,14 @@ const DeliveryAcknowledgement = ({route, navigation}) => {
         <Button
           colorScheme="teal"
           leftIcon={<Icon as={Ionicons} name="home" />}
-          onPress={() => navigation.navigate('Home')}>
+          onPress={() => navigation.navigate('MainApp', {screen: 'Home'})}>
           Back to Home
         </Button>
 
         <Button
           variant="outline"
           leftIcon={<Icon as={Ionicons} name="wallet" />}
-          onPress={() => navigation.navigate('Earnings')}>
+          onPress={() => navigation.navigate('MainApp', {screen: 'Earnings'})}>
           View Wallet Balance
         </Button>
 

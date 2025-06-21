@@ -7,7 +7,7 @@ import LoadingOverlay from './components/LoadingOverlay';
 import Card from './components/Cards';
 import { RootState, AppDispatch } from './store';
 import { useGetRiderProfileQuery, useUpdateRiderProfileMutation } from './store/api';
-import { updateUserProfile as updateAuthSliceProfile } from './store/profile';
+import { updateUserProfile as updateAuthSliceProfile } from './store/profileSlice';
 import { ProfileScreenProps } from './nav.types';
 import { colors } from './theme/colors';
 import { globalStyles } from './theme/style';
