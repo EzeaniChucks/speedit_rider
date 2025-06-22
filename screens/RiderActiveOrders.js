@@ -7,6 +7,7 @@ import {
   PermissionsAndroid,
   Platform,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import Icon from '@react-native-vector-icons/ionicons';
 
@@ -68,14 +69,14 @@ const RiderActiveOrders = () => {
         setLocationError(null);
       },
       error => {
-        // console.error(error);
+         console.log(error);
         setLocationError('Could not fetch location.');
         Alert.alert(
           'Location Error',
           'Failed to get your current location. Please ensure GPS is enabled.',
         );
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      {enableHighAccuracy: true, timeout: 25000, maximumAge: 10000},
     );
   };
 

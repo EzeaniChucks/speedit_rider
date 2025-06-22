@@ -151,9 +151,9 @@ const SignInScreen = ({navigation}) => {
         label="Password"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry={!showPassword}
+        secureTextEntry={!showPassword} 
         mode="outlined"
-        style={[styles.inputStyle, {marginBottom: 12}]} // NativeBase marginBottom={3} is approx 12px
+        style={[styles.inputStyle, {marginBottom: 12,color:'black'}]} // NativeBase marginBottom={3} is approx 12px
         theme={paperInputTheme}
         outlineColor="#ccc"
         activeOutlineColor={activeOutlineColor}
