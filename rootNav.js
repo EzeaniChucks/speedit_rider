@@ -46,6 +46,11 @@ import EditProfileScreen from './screens/profile/userProfileEditScreen';
 import InitiatePasswordResetScreen from './screens/profile/initiatePasswordResetScreen';
 import VerifyPasswordResetScreen from './screens/profile/verifyPasswordResetScreen';
 import PasswordResetSuccessScreen from './screens/profile/passwordResetSuccessScreen';
+import WalletFundScreen from './screens/fundingAndWithdrawal/walletFundScreen';
+import PaymentSuccessScreen from './screens/fundingAndWithdrawal/walletFundSuccessScreen';
+import WithdrawalScreen from './screens/fundingAndWithdrawal/walletWithdrawalScreen';
+import WithdrawalSuccessScreen from './screens/fundingAndWithdrawal/walletWithdrawalSuccess';
+import WithdrawalOTPScreen from './screens/fundingAndWithdrawal/walletWithdrawalOTPscreen';
 
 const Stack = createStackNavigator();
 
@@ -304,9 +309,7 @@ const RootNavigation = () => {
                 component={EditProfileScreen}
                 options={{headerShown: false}}
               />
-              
-              {/* // In your navigation stack */}
-              
+
               <Stack.Screen
                 name="InitiatePasswordReset"
                 component={InitiatePasswordResetScreen}
@@ -322,6 +325,26 @@ const RootNavigation = () => {
                 name="PasswordResetSuccess"
                 component={PasswordResetSuccessScreen}
                 options={{headerShown: false}}
+              />
+
+
+              {/* Paystack Wallet Funding˝ */}
+              <Stack.Screen name="WalletFund" component={WalletFundScreen} />
+              <Stack.Screen
+                name="PaymentSuccess"
+                component={PaymentSuccessScreen}
+              />
+              <Stack.Screen
+                name="WithdrawalOTP"
+                component={WithdrawalOTPScreen}
+              />
+              <Stack.Screen
+                name="WalletWithdrawal"
+                component={WithdrawalScreen}
+              />
+              <Stack.Screen
+                name="WithdrawalSuccess"
+                component={WithdrawalSuccessScreen}
               />
 
               <Stack.Screen
