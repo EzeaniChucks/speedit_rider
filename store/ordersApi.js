@@ -50,7 +50,7 @@ export const ordersApi = createApi({
       onQueryStarted: async (arg, {dispatch, queryFulfilled}) => {
         try {
           const {data} = await queryFulfilled;
-          console.log('here is the order details from rtk api:', data);
+          // console.log('here is the order details from rtk api:', data);
           dispatch(setSelectedOrder(data?.data));
         } catch (error) {
           console.error('Failed to fetch order details:', error);

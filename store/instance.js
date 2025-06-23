@@ -1,9 +1,9 @@
 import axios from 'axios';
 import {store} from '.'; // Adjust path if your store is elsewhere
 
-// const API_BASE_URL = 'https://speedit-server.onrender.com/v1/api';
+const API_BASE_URL = 'https://speedit-server.onrender.com/v1/api';
 // const API_BASE_URL = 'http://192.168.231.196:8080/v1/api';
-const API_BASE_URL = 'http://172.20.10.4:8080/v1/api';
+// const API_BASE_URL = 'http://172.20.10.4:8080/v1/api';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
