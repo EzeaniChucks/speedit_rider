@@ -15,7 +15,7 @@ const WithdrawalSuccessScreen = ({route}: any) => {
   const {amount, accountName, bankName} = route.params;
 
   const handleGoHome = () => {
-    navigation.navigate('Home');
+    navigation.navigate('MainApp', {screen: 'Home'});
   };
 
   const formatAmount = (value: string | number) => {

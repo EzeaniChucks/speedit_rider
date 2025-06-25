@@ -102,7 +102,7 @@ const DeliveryAcknowledgement = ({route, navigation}) => {
         <Button
           variant="outline"
           leftIcon={<Icon as={Ionicons} name="wallet" />}
-          onPress={() => navigation.navigate('MainApp', {screen: 'Earnings'})}>
+          onPress={() => navigation.navigate('MainApp', {screen: 'Analytics'})}>
           View Wallet Balance
         </Button>
 

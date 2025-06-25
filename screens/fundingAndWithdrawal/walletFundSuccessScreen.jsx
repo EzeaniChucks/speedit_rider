@@ -36,7 +36,7 @@ const PaymentSuccessScreen = ({route}) => {
           <TouchableOpacity
             style={styles.doneButton}
             onPress={() =>
-              navigation.navigate('MainApp', {screen: 'Earnings'})
+              navigation.navigate('MainApp', {screen: 'Analytics'})
             }>
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>

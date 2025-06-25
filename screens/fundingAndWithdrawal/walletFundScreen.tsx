@@ -14,7 +14,7 @@ import {useNavigation} from '@react-navigation/native';
 import {PaystackProvider} from 'react-native-paystack-webview';
 import {useVerifyWalletFundingMutation} from '../../store/walletApi';
 import {useSelector} from 'react-redux';
-import PaystackPayment from '../components/paystackPayment';
+import PaystackPayment from '../../components/paystackPayment';
 
 const WalletFundScreen = () => {
   const navigation: any = useNavigation();
@@ -28,7 +28,7 @@ const WalletFundScreen = () => {
   const handleVerification = async (reference: string) => {
     try {
       const response = await verifyFunding({trxref: reference}).unwrap();
-      // console.log(response);
+      console.log('payment verification response:', response);
       if (response.success) {
         navigation.navigate('PaymentSuccess', {
           amount,
@@ -37,10 +37,12 @@ const WalletFundScreen = () => {
         });
       }
     } catch (error: any) {
+      console.log('payment verification error:', error);
       Alert.alert(
         'Error',
         (typeof error.response == 'string' && error.response) ||
           error.message ||
+          (typeof error.error == 'string' && error.response) ||
           'Payment verification failed',
       );
     } finally {

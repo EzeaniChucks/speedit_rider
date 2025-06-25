@@ -16,7 +16,7 @@ import {
   fetchAvailabilityStatus,
   updateAvailabilityStatus,
   resetAvailabilityState,
-} from '../../store/avail'; // Adjust path
+} from '../store/avail'; // Adjust path
 
 const AvailabilityToggle = () => {
   const dispatch = useDispatch();

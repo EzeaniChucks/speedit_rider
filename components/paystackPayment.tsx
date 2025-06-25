@@ -27,6 +27,13 @@ const PaystackPayment = ({
   const {popup} = usePaystack();
 
   const paynow = () => {
+    if (!user) {
+      Alert.alert(
+        'Oops. This should not happen',
+        'No user profile information found. Please close this app or log out and sign in again.',
+      );
+      return;
+    }
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
       Alert.alert('Error', 'Please enter a valid amount (₦1 or more)');
       return;
@@ -38,7 +45,7 @@ const PaystackPayment = ({
       amount: Number(amount),
       reference: `WALLET_FUND_${user.id}_${Date.now()}`,
       metadata: {
-        id: user.id,
+        id: user?.id,
         purpose: 'wallet_funding',
         custom_fields: [
           {
@@ -47,6 +54,8 @@ const PaystackPayment = ({
             value: user.id,
           },
         ],
+        entityType: 'rider',
+        entityId: user?.id,
       },
       onSuccess: ({reference}) => {
         handleVerification(reference);

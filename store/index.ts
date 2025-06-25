@@ -9,7 +9,8 @@ import walletReducer from './wallet';
 import verificationReducer from './verify';
 import availabilityReducer from './avail'; // The new slice
 import {profileApi} from './profileApi';
-import { walletApi } from './walletApi';
+import {walletApi} from './walletApi';
+import {authApi} from './authApi';
 export const store = configureStore({
   reducer: {
     [riderApi.reducerPath]: riderApi.reducer,
@@ -22,6 +23,7 @@ export const store = configureStore({
     profile: userAuthReducer,
     [walletApi.reducerPath]: walletApi.reducer,
     wallet: walletReducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
@@ -29,6 +31,7 @@ export const store = configureStore({
     getDefaultMiddleware().concat([
       profileApi.middleware,
       riderApi.middleware,
+      authApi.middleware,
       ordersApi.middleware,
       walletApi.middleware,
       // ...any other middlewares

@@ -1,23 +1,15 @@
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
-import Icon from '@react-native-vector-icons/ionicons';
-import {useDispatch, useSelector} from 'react-redux';
-import {useEffect} from 'react';
-import {fetchAvailabilityStatus} from '../../store/avail';
+import {Image,StyleSheet, Text, View} from 'react-native';
+import { useSelector} from 'react-redux';
 import AvailabilityToggle from './availabiltyToggle';
 
 const UserProfileCard = () => {
-  const dispatch = useDispatch();
+
   const profile = useSelector(state => state.auth.user);
   const {isAvailable} = useSelector(state => state.availability);
-
-  // useEffect(() => {
-  //   dispatch(fetchAvailabilityStatus());
-  // }, [dispatch]);
-
   return (
     <View style={styles.profileContainer}>
       <Image
-        source={require('../../assests/avatar.jpg')} // Placeholder for user image
+        source={require('../assests/avatar.jpg')} // Placeholder for user image
         style={styles.profileImage}
       />
       <View style={styles.userInfo}>
@@ -54,18 +46,6 @@ const styles = StyleSheet.create({
     borderColor: 'teal',
     borderWidth: 1,
   },
-  //   profileContainer: {
-  //     flexDirection: 'row',
-  //     padding: 16,
-  //     justifyContent: 'space-between',
-  //     backgroundColor: 'white',
-  //     borderRadius: 20,
-  //     marginBottom: 20,
-  //     alignItems: 'center',
-  //     borderColor: 'teal',
-  //     borderWidth: 1,
-  //   },
-
   profileImage: {
     width: 50,
     height: 50,

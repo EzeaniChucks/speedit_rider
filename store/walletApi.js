@@ -2,8 +2,8 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import {setUserProfile, updateUserProfile} from './profileSlice';
 
 // Base URL from your server
-const BASE_URL = 'https://speedit-server.onrender.com/v1/api/';
-// const BASE_URL = 'http://172.20.10.4:8080/v1/api/';
+// const BASE_URL = 'https://speedit-server.onrender.com/v1/api/';
+const BASE_URL = 'http://172.20.10.4:8080/v1/api/'; //ios
 
 export const walletApi = createApi({
   reducerPath: 'walletApi',

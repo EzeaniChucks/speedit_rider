@@ -1,238 +1,294 @@
-import {Box, Icon as Icons, HStack} from 'native-base';
-import React, {useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
-import {Card} from 'react-native-paper';
 import Icon from '@react-native-vector-icons/ionicons';
 import FontAwesome from '@react-native-vector-icons/fontawesome6';
 import {navigate} from '../NavigationService';
-import {updateAvailabilityStatus} from '../store/avail'; // Adjust path
 import {
-  useGetAvailableOrdersQuery,
   useGetWalletBalanceQuery,
-} from '../store/ordersApi'; // Adjust pat
-
-import {useDispatch, useSelector} from 'react-redux';
-import Geolocation from '@react-native-community/geolocation';
-import {useGetRiderProfileQuery} from '../store/api';
-import UserProfileCard from './components/userProfileCard';
+  useGetWalletTransactionsQuery,
+} from '../store/ordersApi';
+import {formatDate} from '../util/date';
+import UserProfileCard from '../components/userProfileCard';
 
 const DashboardScreen = () => {
-  const dispatch = useDispatch();
-  const {loading, error, isAuthenticated, user} = useSelector(
-    state => state.auth,
-  );
-  const profile = user;
-  // console.log('Profile Data:', profile);
-  const {
-    data: profileResponse,
-    isLoading: isProfileLoading,
-    error: profileError,
-  } = useGetRiderProfileQuery();
-  console.log('Profile Response:', profileResponse);
-  const {data: balanceData, isLoading: isBalanceLoading} =
-    useGetWalletBalanceQuery();
-  console.log('Balance Data:', balanceData);
+  // const {user} = useSelector(state => state.auth);
+  const [refreshing, setRefreshing] = useState(false);
 
+  // Add refetch functions from the queries
   const {
-    isAvailable,
-    updateStatus: availabilityUpdateStatus,
-    getStatus: availabilityGetStatus,
-  } = useSelector(state => state.availability);
+    data: balanceData,
+    refetch: refetchBalance,
+    isFetching: balanceIsFetching,
+  } = useGetWalletBalanceQuery();
 
-  const handleToggleAvailability = newValue => {
-    if (availabilityUpdateStatus === 'loading') return; // Prevent spamming
-    dispatch(updateAvailabilityStatus(newValue));
-    console.log('Toggling availability to:', newValue);
-  };
-  const rider = profileResponse?.data;
+  const {data: transactions, refetch: refetchTransactions} =
+    useGetWalletTransactionsQuery({
+      page: 1,
+      limit: 3,
+    });
+
   const wallet = balanceData?.data;
-  // const pendingRequestsCount = availableOrdersData?.data?.length || 0;
+
+  const briefTransactionHistory = transactions?.data?.transactions;
+
+  // console.log(briefTransactionHistory);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Refetch both wallet balance and transactions
+      await Promise.all([refetchBalance(), refetchTransactions()]);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
-    <ScrollView
-      contentContainerStyle={[styles.scrollContainer, {paddingBottom: 0}]}
-      showsVerticalScrollIndicator={false}
-      style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
-        <UserProfileCard />
-
-        {/* Stats Cards - Top Row */}
-        <View style={styles.cardRow}>
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Balance</Text>
-              <Text style={styles.cardAmount}>10,000 NGN</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Total Income</Text>
-              <Text style={styles.cardAmount}>100,000 NGN</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Stats Cards - Bottom Row */}
-        <View style={styles.cardRow}>
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Pending Requests</Text>
-              <Text style={styles.cardAmount}>2</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.card}>
-            <View style={styles.cardContent}>
-              <Text style={styles.cardTitle}>Completed Requests</Text>
-              <Text style={styles.cardAmount}>10</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Summary Section */}
-      <View style={[styles.summaryContainer, {marginBottom: 0}]}>
-        <Text style={styles.summaryHeader}>Yesterday</Text>
-
-        <View style={styles.summaryGrid}>
-          {/* First Row */}
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>MONEY EARNED</Text>
-            <Text style={styles.summaryValue}>₦280</Text>
-          </View>
-
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>HOURS ONLINE</Text>
-            <Text style={styles.summaryValue}>8.5 hrs</Text>
-          </View>
-
-          {/* Second Row */}
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>TOTAL DISTANCE</Text>
-            <Text style={styles.summaryValue}>24 km</Text>
-          </View>
-
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>TOTAL JOBS</Text>
-            <Text style={styles.summaryValue}>20</Text>
-          </View>
-        </View>
-
-        {/* Action Button */}
-        <TouchableOpacity
-          onPress={() => navigate('RiderActiveOrders')}
-          style={styles.primaryButton}>
-          <Text style={styles.buttonText}>Get New Orders</Text>
-          <Icon
-            name="arrow-forward"
-            size={20}
-            color="white"
-            style={styles.buttonIcon}
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            colors={['#00796B']} // Teal color to match your theme
+            tintColor="#00796B"
           />
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+        }>
+        {/* Header with Profile and Refresh Button */}
+        <View style={styles.header}>
+          <UserProfileCard />
+        </View>
+
+        <View style={styles.mainSection}>
+          {/* Wallet Balance Section */}
+          <View style={styles.balanceContainer}>
+            <View style={styles.balanceHeader}>
+              <Text style={styles.balanceLabel}>Wallet Balance</Text>
+              <Text
+                onPress={() => navigate('MainApp', {screen: 'Analytics'})}
+                style={styles.analytics}>
+                View analytics
+              </Text>
+            </View>
+            <Text style={styles.balanceAmount}>
+              ₦{wallet?.balance?.toLocaleString() || '0'}
+            </Text>
+
+            <View style={styles.walletActions}>
+              <TouchableOpacity
+                style={[styles.walletButton, styles.fundButton]}
+                onPress={() => navigate('WalletFund')}>
+                <FontAwesome
+                  name="money-bill-transfer"
+                  size={16}
+                  color="white"
+                  iconStyle="solid"
+                />
+                <Text style={styles.walletButtonText}>Fund Wallet</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.walletButton, styles.withdrawButton]}
+                onPress={() => navigate('WalletWithdrawal')}>
+                <FontAwesome
+                  name="money-bill-trend-up"
+                  size={16}
+                  color="white"
+                  iconStyle="solid"
+                />
+                <Text style={styles.walletButtonText}>Withdraw</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Get Orders Button */}
+          <TouchableOpacity
+            onPress={() => navigate('RiderActiveOrders')}
+            style={styles.primaryButton}>
+            <Text style={styles.buttonText}>Get Nearby Orders</Text>
+            <Icon
+              name="arrow-forward-circle"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+          </TouchableOpacity>
+
+          {/* Transactions History */}
+          <View style={styles.transactionsContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Recent Transactions</Text>
+              <View style={styles.transactionHeaderActions}>
+                {balanceIsFetching ? (
+                  <ActivityIndicator />
+                ) : (
+                  <TouchableOpacity onPress={handleRefresh}>
+                    <Icon name="refresh" size={18} color="#00796B" />
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  onPress={() => navigate('TransactionHistory')}>
+                  <Text style={styles.seeAllText}>See All</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Transactions list */}
+            <View style={styles.transactionList}>
+              {briefTransactionHistory?.map(item => (
+                <View key={item.id} style={styles.transactionItem}>
+                  <View style={styles.transactionIcon}>
+                    <FontAwesome
+                      name={
+                        item.purpose === 'wallet_funding'
+                          ? 'money-bill-wave'
+                          : 'truck-fast'
+                      }
+                      size={20}
+                      color="#00796B"
+                      iconStyle="solid"
+                    />
+                  </View>
+                  <View style={styles.transactionDetails}>
+                    <Text style={styles.transactionTitle}>
+                      {item?.purpose?.split('_').join(' ')}
+                    </Text>
+                    <Text style={styles.transactionDate}>
+                      {formatDate(item.createdAt)}
+                    </Text>
+                  </View>
+                  <Text
+                    style={
+                      item.type === 'credit'
+                        ? styles.transactionCreditAmount
+                        : styles.transactionDebitAmount
+                    }>
+                    {item.type === 'credit'
+                      ? `₦${item?.amount}`
+                      : `- ₦${item.amount}`}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom: -1, // Counteracts any default margin
+    backgroundColor: '#f8f9fa',
   },
   scrollContainer: {
-    flexGrow: 1, // Ensures content fills available space
-    justifyContent: 'space-between',
+    paddingBottom: 30,
   },
-  headerContainer: {
-    backgroundColor: '#00897B',
-    padding: 24,
-    paddingTop: 120,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    marginBottom: 16,
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
+    marginBottom: 80,
+    marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  cardRow: {
+  refreshButton: {
+    padding: 8,
+  },
+  balanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    alignItems: 'center',
   },
-  card: {
-    width: '48%',
+  transactionHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  refreshIcon: {
+    padding: 4,
+  },
+  mainSection: {
+    flex: 1,
+    gap: 10,
+    justifyContent: 'space-between',
+  },
+  balanceContainer: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    minHeight: 120,
-    justifyContent: 'center',
+    marginHorizontal: 20,
+    marginTop: 10,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  cardContent: {
-    alignItems: 'flex-start',
-  },
-  cardTitle: {
-    fontSize: 14,
+  balanceLabel: {
+    fontSize: 16,
     color: '#616161',
-    marginBottom: 8,
-    fontFamily: 'Roboto-Medium',
+    marginBottom: 5,
   },
-  cardAmount: {
-    fontSize: 22,
+  analytics: {
+    fontSize: 14,
+    color: 'teal',
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  balanceAmount: {
+    fontSize: 32,
     fontWeight: '700',
     color: '#00796B',
-  },
-  summaryContainer: {
-    backgroundColor: '#00695C',
-    padding: 24,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    marginTop: 5,
-  },
-  summaryHeader: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: 'white',
-    marginBottom: 24,
-  },
-  summaryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  summaryItem: {
-    width: '48%',
     marginBottom: 20,
   },
-  summaryLabel: {
-    fontSize: 13,
-    color: '#B2DFDB',
-    fontWeight: '500',
-    marginBottom: 4,
-    letterSpacing: 0.5,
+  walletActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  summaryValue: {
-    fontSize: 18,
-    fontWeight: '700',
+  walletButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    width: '48%',
+  },
+  fundButton: {
+    backgroundColor: '#00796B',
+  },
+  withdrawButton: {
+    backgroundColor: '#00897B',
+  },
+  walletButtonText: {
     color: 'white',
+    fontWeight: '600',
+    marginLeft: 8,
   },
   primaryButton: {
     backgroundColor: '#00796B',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 12,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 20,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
@@ -247,6 +303,75 @@ const styles = StyleSheet.create({
   },
   buttonIcon: {
     marginLeft: 4,
+  },
+  transactionsContainer: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    marginTop: 25,
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#212121',
+  },
+  seeAllText: {
+    color: '#00796B',
+    fontWeight: '600',
+  },
+  transactionList: {
+    marginTop: 10,
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  transactionIcon: {
+    backgroundColor: '#e0f2f1',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  transactionDetails: {
+    flex: 1,
+  },
+  transactionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: 2,
+  },
+  transactionDate: {
+    fontSize: 12,
+    color: '#757575',
+  },
+  transactionCreditAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#00796B',
+  },
+  transactionDebitAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: 'tomato',
   },
 });
 

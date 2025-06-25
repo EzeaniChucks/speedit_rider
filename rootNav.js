@@ -3,12 +3,10 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import OrderListScreen from './OrderListScreen';
-import OrderDetailsScreen from './OrderDetailsScreen';
-import ProfileScreen from './ProfileScreen';
+import OrderListScreen from './screens/OrderHistoryScreen';
+import OrderDetailsScreen from './screens/OrderDetailsScreen';
 import SettingsScreen from './SettingsScreen';
 import NotificationsScreen from './forgotPassword';
-import ChatScreen from './verifyOtp';
 import CreateAccount from './onboarding/index'; // Adjust the path
 import BottomTabNavigator from './nav/index'; // Adjust the path
 import CreatePasswordScreen from './onboarding/CreatePassword';
@@ -24,8 +22,6 @@ import OnboardingScreen from './OnboardingScreen'; // Adjust the path as necessa
 import {setNavigator} from './NavigationService'; // Import the navigation service
 import {PaperProvider} from 'react-native-paper';
 import {NativeBaseProvider} from 'native-base';
-import EarningsScreen from './screens/earnings';
-import RiderActiveOrders from './screens/RiderActiveOrders';
 import PickupScreen from './screens/pickup';
 import OrderPicked from './screens/ConfirmOrder';
 import TrackCustomer from './screens/TrackCustomer';
@@ -51,6 +47,9 @@ import PaymentSuccessScreen from './screens/fundingAndWithdrawal/walletFundSucce
 import WithdrawalScreen from './screens/fundingAndWithdrawal/walletWithdrawalScreen';
 import WithdrawalSuccessScreen from './screens/fundingAndWithdrawal/walletWithdrawalSuccess';
 import WithdrawalOTPScreen from './screens/fundingAndWithdrawal/walletWithdrawalOTPscreen';
+import TransactionHistoryScreen from './screens/transactionsHistory';
+import ForgotPasswordScreen from './screens/forgotPassword/forgotPasswordScreen';
+import ForgotPasswordCompleteScreen from './screens/forgotPassword/resetPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -268,15 +267,18 @@ const RootNavigation = () => {
                 name="LicenseCollectionScreen"
                 component={LicenseCollectionScreen}
               />
-              {/* <Stack.Screen
-                name="BottomTabNavigator"
-                component={BottomTabNavigator}
-              /> */}
+
               {/* Main App (With tabs) */}
               <Stack.Screen name="MainApp" component={BottomTabNavigator} />
+
+              {/* Transactions History */}
+              <Stack.Screen
+                name="TransactionHistory"
+                component={TransactionHistoryScreen}
+              />
+
               <Stack.Screen name="OrderList" component={OrderListScreen} />
-              {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-              {/* <Stack.Screen name="OrderList" component={OrderListScreen} /> */}
+
               <Stack.Screen name="OrderPicked" component={OrderPicked} />
               <Stack.Screen
                 name="OrderDetails"
@@ -309,24 +311,39 @@ const RootNavigation = () => {
                 component={EditProfileScreen}
                 options={{headerShown: false}}
               />
-
+              {/* for authenticated user profile */}
               <Stack.Screen
                 name="InitiatePasswordReset"
                 component={InitiatePasswordResetScreen}
                 options={{headerShown: false}}
               />
 
+              {/* for authenticated user profile */}
               <Stack.Screen
                 name="VerifyPasswordReset"
                 component={VerifyPasswordResetScreen}
                 options={{headerShown: false}}
               />
+              {/* for authenticated user profile */}
               <Stack.Screen
                 name="PasswordResetSuccess"
                 component={PasswordResetSuccessScreen}
                 options={{headerShown: false}}
               />
 
+              {/* Forgot Password */}
+              {/* UNauthenticated user */}
+              <Stack.Screen
+                name="ForgotPasswordInitiate"
+                component={ForgotPasswordScreen}
+                options={{headerShown: false}}
+              />
+              {/* UNauthenticated user */}
+              <Stack.Screen
+                name="ForgotPasswordComplete"
+                component={ForgotPasswordCompleteScreen}
+                options={{headerShown: true}}
+              />
 
               {/* Paystack Wallet Funding˝ */}
               <Stack.Screen name="WalletFund" component={WalletFundScreen} />

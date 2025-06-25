@@ -8,6 +8,7 @@ import Ionicons from '@react-native-vector-icons/ionicons'; // Fixed import name
 // import OrderHistoryScreen from '../screens/historyOrder';
 import RiderActiveOrders from '../screens/RiderActiveOrders';
 import RiderProfileScreen from '../screens/profile/userProfileScreen';
+import RiderAnalyticsScreen from '../screens/analytics';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,7 +23,7 @@ const BottomTabNavigator = () => {
             case 'Home':
               iconName = focused ? 'home' : 'home-outline';
               break;
-            case 'Earnings':
+            case 'Analytics':
               iconName = focused ? 'cash' : 'cash-outline';
               break;
             case 'Orders':
@@ -60,11 +61,17 @@ const BottomTabNavigator = () => {
         component={HomeScreen}
         options={{tabBarLabel: 'Home'}}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Earnings"
         component={EarningsScreen}
         options={{tabBarLabel: 'Earnings'}}
+      /> */}
+      <Tab.Screen
+        name="Analytics"
+        component={RiderAnalyticsScreen}
+        options={{tabBarLabel: 'Analytics'}}
       />
+
       {/* Unified Orders Screen */}
       <Tab.Screen
         name="RiderActiveOrders"

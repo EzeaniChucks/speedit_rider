@@ -11,15 +11,13 @@ import {
   StatusBar,
 } from 'native-base';
 import Icon from '@react-native-vector-icons/entypo';
-import RiderStatus from './DriverStatus';
-import {navigate} from '../NavigationService';
 
 import {
   useCancelOrderMutation,
   useUpdateOrderStatusMutation,
 } from '../store/ordersApi'; // Adjust path
 import {useNavigation, useRoute} from '@react-navigation/native';
-import UserProfileCard from './components/userProfileCard';
+import UserProfileCard from '../components/userProfileCard';
 
 const PickupScreen = () => {
   const route = useRoute();
