@@ -21,7 +21,7 @@ const PaymentSuccessScreen = ({route}) => {
             <AntIcons name="check-circle" size={60} color="#4CAF50" />
           </View>
 
-          <Text style={styles.successTitle}>Payment Successful!</Text>
+          <Text style={styles.successTitle}>Funding Successful!</Text>
           <Text style={styles.amount}>
             ₦{parseFloat(amount).toLocaleString()}
           </Text>

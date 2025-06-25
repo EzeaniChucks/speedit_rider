@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 // import { Button } from 'react-native-paper'; // Using TouchableOpacity for consistency
-import { Box, Progress } from 'native-base';
+import {Box, Progress} from 'native-base';
 import Icons from '@react-native-vector-icons/ant-design';
-import { useDispatch, useSelector } from 'react-redux';
-import { setIdPhoto } from '../store/verify';
+import {useDispatch, useSelector} from 'react-redux';
+import {setIdPhoto} from '../../store/verify';
 import UploadBottomSheet from './uploadSheet'; // Adjust path
 
-const DocumentUploadScreen = ({ navigation }) => {
+const DocumentUploadScreen = ({navigation}) => {
   const dispatch = useDispatch();
-  const idPhotoUri = useSelector((state) => state.verification.idPhotoUri);
+  const idPhotoUri = useSelector(state => state.verification.idPhotoUri);
 
   const [progress, setProgress] = useState(20); // Initial progress
   const [isSheetVisible, setSheetVisible] = useState(false);
 
-  const handleImageSelected = (imageData) => { // imageData is { uri, fileName, type }
+  const handleImageSelected = imageData => {
+    // imageData is { uri, fileName, type }
     if (imageData) {
       dispatch(setIdPhoto(imageData));
     }
@@ -23,12 +32,15 @@ const DocumentUploadScreen = ({ navigation }) => {
 
   const handleSubmit = () => {
     if (!idPhotoUri) {
-      Alert.alert("Missing Photo", "Please upload your ID photo.");
+      Alert.alert('Missing Photo', 'Please upload your ID photo.');
       return;
     }
-    console.log("ID Photo URI:", idPhotoUri);
+    // console.log('ID Photo URI:', idPhotoUri);
+
     const nextProgress = Math.min(progress + 20, 100);
-    navigation.navigate('VehicleSelectionScreen', { currentProgress: nextProgress });
+    navigation.navigate('VehicleSelectionScreen', {
+      currentProgress: nextProgress,
+    });
   };
 
   return (
@@ -36,7 +48,7 @@ const DocumentUploadScreen = ({ navigation }) => {
       <Box safeAreaTop paddingX={4} paddingTop={4}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icons name="arrowleft" size={30} color='teal' />
+            <Icons name="left-circle" size={30} color="teal" />
           </TouchableOpacity>
           <Text style={styles.title}>Document collection</Text>
         </View>
@@ -46,15 +58,20 @@ const DocumentUploadScreen = ({ navigation }) => {
       <View style={styles.content}>
         <Text style={styles.head}>Upload Your ID</Text>
         <Text style={styles.subHeader}>
-          Photo of your ID (National ID, valid voter’s card, intl passport or rider's card)
+          Photo of your ID (National ID, valid voter’s card, intl passport or
+          rider's card)
         </Text>
 
-        {idPhotoUri && <Image source={{ uri: idPhotoUri }} style={styles.imagePreview} />}
+        {idPhotoUri && (
+          <Image source={{uri: idPhotoUri}} style={styles.imagePreview} />
+        )}
 
         <TouchableOpacity
           style={styles.uploadButton}
           onPress={() => setSheetVisible(true)}>
-          <Text style={styles.buttonText}>{idPhotoUri ? 'Change ID Photo' : 'Upload ID Photo'}</Text>
+          <Text style={styles.buttonText}>
+            {idPhotoUri ? 'Change ID Photo' : 'Upload ID Photo'}
+          </Text>
         </TouchableOpacity>
       </View>
 

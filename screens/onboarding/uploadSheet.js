@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import useImagePicker from '../screens/imageUpload'; // Adjusted path
+import useImagePicker from '../imageUpload'; // Adjusted path
 
 const UploadBottomSheet = ({visible, onClose, onImageSelected}) => {
   const translateY = useRef(new Animated.Value(500)).current;

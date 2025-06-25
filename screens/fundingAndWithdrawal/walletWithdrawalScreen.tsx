@@ -73,10 +73,10 @@ const WithdrawalScreen = () => {
 
       if (response.data.success) {
         setAccountName(response.data.data.data.account_name);
-        Alert.alert(
-          'Account Verified',
-          `Account Name: ${response.data.data.data.account_name}`,
-        );
+        // Alert.alert(
+        //   'Account Verified',
+        //   `Account Name: ${response.data.data.data.account_name}`,
+        // );
       }
     } catch (error) {
       Alert.alert(

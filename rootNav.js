@@ -1,24 +1,21 @@
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-import LoginScreen from './screens/LoginScreen';
-import HomeScreen from './screens/HomeScreen';
+import LoginScreen from './screens/onboarding/LoginScreen';
 import OrderListScreen from './screens/OrderHistoryScreen';
 import OrderDetailsScreen from './screens/OrderDetailsScreen';
 import SettingsScreen from './SettingsScreen';
-import NotificationsScreen from './forgotPassword';
-import CreateAccount from './onboarding/index'; // Adjust the path
+// import CreateAccount from './screens/onboarding/index'; // Adjust the path
 import BottomTabNavigator from './nav/index'; // Adjust the path
-import CreatePasswordScreen from './onboarding/CreatePassword';
-import BecomeRiderScreen from './onboarding/becomeRider';
-import BankCollectionScreen from './onboarding/BankCollectionScreen';
-import BecomeRiderTwoScreen from './onboarding/becomeRiderStep_two';
-import NinCollectionScreen from './onboarding/NinCollection ';
-import DocumentCollectionScreen from './onboarding/setProfillePhoto';
-import DocumentUploadScreen from './onboarding/Documentupload';
-import VehicleSelectionScreen from './onboarding/VehicleSelectionScreen';
-import AccountCreatedScreen from './onboarding/AccountCreatedScreen'; // Adjust the path
-import OnboardingScreen from './OnboardingScreen'; // Adjust the path as necessary
+import CreatePasswordScreen from './screens/onboarding/CreatePassword';
+import BecomeRiderScreen from './screens/onboarding/becomeRider';
+import BankCollectionScreen from './screens/onboarding/BankCollectionScreen';
+import BecomeRiderTwoScreen from './screens/onboarding/becomeRiderStep_two';
+import DocumentCollectionScreen from './screens/onboarding/setProfillePhoto';
+import DocumentUploadScreen from './screens/onboarding/Documentupload';
+import VehicleSelectionScreen from './screens/onboarding/VehicleSelectionScreen';
+import AccountCreatedScreen from './screens/onboarding/AccountCreatedScreen'; // Adjust the path
+import OnboardingScreen from './screens/onboarding/OnboardingScreen'; // Adjust the path as necessary
 import {setNavigator} from './NavigationService'; // Import the navigation service
 import {PaperProvider} from 'react-native-paper';
 import {NativeBaseProvider} from 'native-base';
@@ -33,7 +30,7 @@ import {Provider as ReduxProvider, useDispatch} from 'react-redux';
 import {setFcmToken} from './store/authSlice';
 import messaging, {firebase} from '@react-native-firebase/messaging';
 import {firebaseConfig} from './firebaseCon';
-import LicenseCollectionScreen from './onboarding/NinCollection ';
+import LicenseCollectionScreen from './screens/onboarding/LicenseCollection ';
 import AvailableOrdersScreen from './screens/avalOrders';
 import AvailableRidersScreen from './screens/availDash';
 import OrderProgressScreen from './screens/OrderProgressionScreen';
@@ -50,6 +47,10 @@ import WithdrawalOTPScreen from './screens/fundingAndWithdrawal/walletWithdrawal
 import TransactionHistoryScreen from './screens/transactionsHistory';
 import ForgotPasswordScreen from './screens/forgotPassword/forgotPasswordScreen';
 import ForgotPasswordCompleteScreen from './screens/forgotPassword/resetPasswordScreen';
+import SplashScreen from './screens/onboarding/splash';
+import {colors} from './theme/colors';
+import RegistrationPersonalInformationScreen from './screens/onboarding/Registration_Personal_Info';
+import RegistrationVehicleInformationScreen from './screens/onboarding/Registration_Vehicle_Info';
 
 const Stack = createStackNavigator();
 
@@ -59,6 +60,39 @@ const RootNavigation = () => {
       firebase.initializeApp(firebaseConfig);
     }
   }, []);
+
+  // Internal function to get the token
+  async function getFcmTokenInternal(dispatch) {
+    // Pass dispatch if storing in Redux
+    try {
+      const token = await messaging().getToken();
+      if (token) {
+        console.log('FCM Token Generated:', token);
+        // **IMPORTANT: Send this token to your backend server and associate it with the user.**
+        // Example: await api.sendFcmTokenToServer(token);
+
+        // Optionally, store it in Redux state
+        if (dispatch) {
+          dispatch(setFcmToken(token));
+        }
+        return token;
+      } else {
+        // console.log(
+        //   'Failed to get FCM token. messaging().getToken() returned null/undefined.',
+        // );
+        Alert.alert(
+          'FCM Error',
+          'Could not retrieve a messaging token. Notifications might not work.',
+        );
+        return null;
+      }
+    } catch (error) {
+      // console.error('Error getting FCM token:', error);
+      Alert.alert('FCM Error', `Error getting FCM token: ${error.message}`);
+      return null;
+    }
+  }
+
   async function requestUserPermissionAndGetToken(dispatch) {
     // Pass dispatch if storing in Redux
     let fcmToken = null;
@@ -115,38 +149,6 @@ const RootNavigation = () => {
       }
     }
     return fcmToken;
-  }
-
-  // Internal function to get the token
-  async function getFcmTokenInternal(dispatch) {
-    // Pass dispatch if storing in Redux
-    try {
-      const token = await messaging().getToken();
-      if (token) {
-        console.log('FCM Token Generated:', token);
-        // **IMPORTANT: Send this token to your backend server and associate it with the user.**
-        // Example: await api.sendFcmTokenToServer(token);
-
-        // Optionally, store it in Redux state
-        if (dispatch) {
-          dispatch(setFcmToken(token));
-        }
-        return token;
-      } else {
-        // console.log(
-        //   'Failed to get FCM token. messaging().getToken() returned null/undefined.',
-        // );
-        Alert.alert(
-          'FCM Error',
-          'Could not retrieve a messaging token. Notifications might not work.',
-        );
-        return null;
-      }
-    } catch (error) {
-      // console.error('Error getting FCM token:', error);
-      Alert.alert('FCM Error', `Error getting FCM token: ${error.message}`);
-      return null;
-    }
   }
 
   // Component to handle FCM setup (can be inside App or a child)
@@ -222,156 +224,161 @@ const RootNavigation = () => {
           <NavigationContainer ref={setNavigator}>
             <Stack.Navigator
               screenOptions={{
-                headerShown: false, // Hide default headers
+                headerShown: false,
               }}
-              initialRouteName="Onboarding">
-              <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-              <Stack.Screen
-                name="CreateAccountScreen"
-                component={CreateAccount}
-              />
-              <Stack.Screen
-                name="AccountCreatedScreen"
-                component={AccountCreatedScreen}
-              />
-              <Stack.Screen
-                name="CreatePasswordScreen"
-                component={CreatePasswordScreen}
-              />
-              <Stack.Screen
-                name="BankCollectionScreen"
-                component={BankCollectionScreen}
-              />
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen
-                name="BecomeRiderScreen"
-                component={BecomeRiderScreen}
-              />
-              <Stack.Screen
-                name="BecomeRiderTwoScreen"
-                component={BecomeRiderTwoScreen}
-              />
-              <Stack.Screen
-                name="DocumentCollectionScreen"
-                component={DocumentCollectionScreen}
-              />
-              <Stack.Screen
-                name="DocumentUploadScreen"
-                component={DocumentUploadScreen}
-              />
-              <Stack.Screen
-                name="VehicleSelectionScreen"
-                component={VehicleSelectionScreen}
-              />
-              <Stack.Screen
-                name="LicenseCollectionScreen"
-                component={LicenseCollectionScreen}
-              />
+              initialRouteName="Splash">
+              {/* Changed initial route */}
+              {/* Splash Screen - First screen users see */}
+              <Stack.Screen name="Splash" component={SplashScreen} />
+              {/* Auth Screens */}
+              <Stack.Group>
+                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                <Stack.Screen name="Login" component={LoginScreen} />
+                {/* <Stack.Screen
+                  name="CreateAccountScreen"
+                  component={CreateAccount}
+                /> */}
+                <Stack.Screen
+                  name="RegisterPersonalInfo"
+                  component={RegistrationPersonalInformationScreen}
+                />
+                <Stack.Screen
+                  name="RegisterVehicleInfo"
+                  component={RegistrationVehicleInformationScreen}
+                />
 
-              {/* Main App (With tabs) */}
+                <Stack.Screen
+                  name="AccountCreatedScreen"
+                  component={AccountCreatedScreen}
+                />
+                <Stack.Screen
+                  name="CreatePasswordScreen"
+                  component={CreatePasswordScreen}
+                />
+
+                {/* Password Reset Flow */}
+                <Stack.Screen
+                  name="ForgotPasswordInitiate"
+                  component={ForgotPasswordScreen}
+                />
+                <Stack.Screen
+                  name="ForgotPasswordComplete"
+                  component={ForgotPasswordCompleteScreen}
+                />
+                <Stack.Screen
+                  name="InitiatePasswordReset"
+                  component={InitiatePasswordResetScreen}
+                />
+                <Stack.Screen
+                  name="VerifyPasswordReset"
+                  component={VerifyPasswordResetScreen}
+                />
+                <Stack.Screen
+                  name="PasswordResetSuccess"
+                  component={PasswordResetSuccessScreen}
+                />
+              </Stack.Group>
+              {/* Rider Onboarding Flow */}
+              <Stack.Group>
+                <Stack.Screen
+                  name="BecomeRiderScreen"
+                  component={BecomeRiderScreen}
+                />
+                <Stack.Screen
+                  name="BecomeRiderTwoScreen"
+                  component={BecomeRiderTwoScreen}
+                />
+
+                <Stack.Screen
+                  name="DocumentCollectionScreen"
+                  component={DocumentCollectionScreen}
+                />
+                <Stack.Screen
+                  name="DocumentUploadScreen"
+                  component={DocumentUploadScreen}
+                />
+                <Stack.Screen
+                  name="VehicleSelectionScreen"
+                  component={VehicleSelectionScreen}
+                />
+                <Stack.Screen
+                  name="LicenseCollectionScreen"
+                  component={LicenseCollectionScreen}
+                />
+                <Stack.Screen
+                  name="BankCollectionScreen"
+                  component={BankCollectionScreen}
+                />
+              </Stack.Group>
+              {/* Main App */}
               <Stack.Screen name="MainApp" component={BottomTabNavigator} />
-
-              {/* Transactions History */}
-              <Stack.Screen
-                name="TransactionHistory"
-                component={TransactionHistoryScreen}
-              />
-
-              <Stack.Screen name="OrderList" component={OrderListScreen} />
-
-              <Stack.Screen name="OrderPicked" component={OrderPicked} />
-              <Stack.Screen
-                name="OrderDetails"
-                component={OrderDetailsScreen}
-              />
-              <Stack.Screen
-                name="OrderProgress"
-                component={OrderProgressScreen}
-              />
-              {/* <Stack.Screen name="Profile" component={ProfileScreen} /> */}
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-              <Stack.Screen
-                name="Notifications"
-                component={NotificationsScreen}
-              />
-              <Stack.Screen name="orders" component={AvailableOrdersScreen} />
-              <Stack.Screen name="CustomerTrack" component={TrackCustomer} />
-              <Stack.Screen name="PickupScreen" component={PickupScreen} />
-              <Stack.Screen name="DeliveryScreen" component={DeliveryScreen} />
-              <Stack.Screen
-                name="DeliveryAcknowledgement"
-                component={DeliveryAcknowledgement}
-              />
-
-              {/* Profile Management */}
-              {/* NB: Profile view is added as a tab to bottomTabNavigation above */}
-
-              <Stack.Screen
-                name="EditProfile"
-                component={EditProfileScreen}
-                options={{headerShown: false}}
-              />
-              {/* for authenticated user profile */}
-              <Stack.Screen
-                name="InitiatePasswordReset"
-                component={InitiatePasswordResetScreen}
-                options={{headerShown: false}}
-              />
-
-              {/* for authenticated user profile */}
-              <Stack.Screen
-                name="VerifyPasswordReset"
-                component={VerifyPasswordResetScreen}
-                options={{headerShown: false}}
-              />
-              {/* for authenticated user profile */}
-              <Stack.Screen
-                name="PasswordResetSuccess"
-                component={PasswordResetSuccessScreen}
-                options={{headerShown: false}}
-              />
-
-              {/* Forgot Password */}
-              {/* UNauthenticated user */}
-              <Stack.Screen
-                name="ForgotPasswordInitiate"
-                component={ForgotPasswordScreen}
-                options={{headerShown: false}}
-              />
-              {/* UNauthenticated user */}
-              <Stack.Screen
-                name="ForgotPasswordComplete"
-                component={ForgotPasswordCompleteScreen}
-                options={{headerShown: true}}
-              />
-
-              {/* Paystack Wallet Funding˝ */}
-              <Stack.Screen name="WalletFund" component={WalletFundScreen} />
-              <Stack.Screen
-                name="PaymentSuccess"
-                component={PaymentSuccessScreen}
-              />
-              <Stack.Screen
-                name="WithdrawalOTP"
-                component={WithdrawalOTPScreen}
-              />
-              <Stack.Screen
-                name="WalletWithdrawal"
-                component={WithdrawalScreen}
-              />
-              <Stack.Screen
-                name="WithdrawalSuccess"
-                component={WithdrawalSuccessScreen}
-              />
-
-              <Stack.Screen
-                name="avalRides"
-                component={AvailableRidersScreen}
-              />
-              <Stack.Screen
-                name="avalOrders"
-                component={AvailableOrdersScreen}
-              />
+              {/* Order Management */}
+              <Stack.Group>
+                <Stack.Screen name="OrderList" component={OrderListScreen} />
+                <Stack.Screen name="OrderPicked" component={OrderPicked} />
+                <Stack.Screen
+                  name="OrderDetails"
+                  component={OrderDetailsScreen}
+                />
+                <Stack.Screen
+                  name="OrderProgress"
+                  component={OrderProgressScreen}
+                />
+                <Stack.Screen name="PickupScreen" component={PickupScreen} />
+                <Stack.Screen
+                  name="DeliveryScreen"
+                  component={DeliveryScreen}
+                />
+                <Stack.Screen
+                  name="DeliveryAcknowledgement"
+                  component={DeliveryAcknowledgement}
+                />
+                <Stack.Screen
+                  name="avalRides"
+                  component={AvailableRidersScreen}
+                />
+                <Stack.Screen
+                  name="avalOrders"
+                  component={AvailableOrdersScreen}
+                />
+              </Stack.Group>
+              {/* Wallet & Transactions */}
+              <Stack.Group>
+                <Stack.Screen
+                  name="TransactionHistory"
+                  component={TransactionHistoryScreen}
+                />
+                <Stack.Screen name="WalletFund" component={WalletFundScreen} />
+                <Stack.Screen
+                  name="PaymentSuccess"
+                  component={PaymentSuccessScreen}
+                />
+                <Stack.Screen
+                  name="WithdrawalOTP"
+                  component={WithdrawalOTPScreen}
+                />
+                <Stack.Screen
+                  name="WalletWithdrawal"
+                  component={WithdrawalScreen}
+                />
+                <Stack.Screen
+                  name="WithdrawalSuccess"
+                  component={WithdrawalSuccessScreen}
+                />
+              </Stack.Group>
+              {/* Profile & Settings */}
+              <Stack.Group>
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+                {/* <Stack.Screen
+                  name="Notifications"
+                  component={NotificationsScreen}
+                /> */}
+                <Stack.Screen
+                  name="EditProfile"
+                  component={EditProfileScreen}
+                />
+                <Stack.Screen name="CustomerTrack" component={TrackCustomer} />
+              </Stack.Group>
             </Stack.Navigator>
           </NavigationContainer>
         </PaperProvider>

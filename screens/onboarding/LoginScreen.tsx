@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
-  ScrollView
+  ScrollView,
+  Platform,
 } from 'react-native';
 import AntDesign from '@react-native-vector-icons/ant-design';
 import {useDispatch, useSelector} from 'react-redux';
@@ -18,17 +19,19 @@ import {
   clearAuthError,
   resetAuthState,
   setAuthStateFromPersisted,
-} from '../store/authSlice';
+} from '../../store/authSlice';
 import {TextInput} from 'react-native-paper';
+import {AppDispatch} from '../../store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SignInScreen = ({navigation}) => {
+const SignInScreen = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const {loading, error, isAuthenticated, user} = useSelector(
-    state => state.auth,
+    (state: any) => state.auth,
   );
 
   useEffect(() => {
@@ -45,6 +48,8 @@ const SignInScreen = ({navigation}) => {
         user.verificationStatus === 'approved';
 
       if (isProfileComplete) {
+        AsyncStorage.setItem('@user_has_onboarded', 'true');
+        AsyncStorage.setItem('user_is_rider', 'true');
         navigation.replace('MainApp');
       } else {
         navigation.replace('DocumentUploadScreen');
@@ -62,7 +67,7 @@ const SignInScreen = ({navigation}) => {
     }
   }, [error, dispatch]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert('Validation Error', 'Email and password are required.');
       return;
@@ -71,14 +76,14 @@ const SignInScreen = ({navigation}) => {
       Alert.alert('Validation Error', 'Please enter a valid email address.');
       return;
     }
-    dispatch(loginUser({email, password}));
+    const result = await dispatch(loginUser({email, password}));
   };
 
   const handleGoBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
     } else {
-      navigation.navigate('CreateAccountScreen');
+      navigation.navigate('RegisterPersonalInfo');
     }
   };
 
@@ -101,8 +106,15 @@ const SignInScreen = ({navigation}) => {
           </View>
 
           <View style={styles.illustrationContainer}>
-            <AntDesign name="user" size={72} color="#008080" style={styles.icon} />
-            <Text style={styles.subtitle}>Welcome back! Please sign in to continue</Text>
+            <AntDesign
+              name="user"
+              size={72}
+              color="#008080"
+              style={styles.icon}
+            />
+            <Text style={styles.subtitle}>
+              Welcome back! Please sign in to continue
+            </Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -120,12 +132,7 @@ const SignInScreen = ({navigation}) => {
                   placeholder: '#999',
                 },
               }}
-              left={
-                <TextInput.Icon
-                  name="email"
-                  color="#999"
-                />
-              }
+              left={<TextInput.Icon icon="email" color="#999" />}
             />
 
             <TextInput
@@ -141,15 +148,10 @@ const SignInScreen = ({navigation}) => {
                   placeholder: '#999',
                 },
               }}
-              left={
-                <TextInput.Icon
-                  name="lock"
-                  color="#999"
-                />
-              }
+              left={<TextInput.Icon icon="lock" color="#999" />}
               right={
                 <TextInput.Icon
-                  name={showPassword ? 'eye-off' : 'eye'}
+                  icon={showPassword ? 'eye-off' : 'eye'}
                   onPress={() => setShowPassword(!showPassword)}
                   color="#999"
                 />
@@ -175,7 +177,8 @@ const SignInScreen = ({navigation}) => {
 
             <View style={styles.signUpContainer}>
               <Text style={styles.signUpText}>Don't have an account? </Text>
-              <TouchableOpacity onPress={() => navigation.navigate('CreateAccountScreen')}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('RegisterPersonalInfo')}>
                 <Text style={styles.signUpLink}>Sign Up</Text>
               </TouchableOpacity>
             </View>
@@ -197,7 +200,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -249,7 +252,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
