@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,8 @@ import {
 } from '../store/ordersApi';
 import {formatDate} from '../util/date';
 import UserProfileCard from '../components/userProfileCard';
+import {useFocusEffect} from '@react-navigation/native';
+import { formatCurrency } from '../util/helpers';
 
 const DashboardScreen = () => {
   // const {user} = useSelector(state => state.auth);
@@ -40,8 +42,6 @@ const DashboardScreen = () => {
 
   const briefTransactionHistory = transactions?.data?.transactions;
 
-  // console.log(briefTransactionHistory);
-
   const handleRefresh = async () => {
     setRefreshing(true);
     try {
@@ -51,6 +51,16 @@ const DashboardScreen = () => {
       setRefreshing(false);
     }
   };
+
+  // // This will run whenever the screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      if (wallet) {
+        // Only refetch if wallet exists
+        handleRefresh();
+      }
+    }, [wallet]),
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,9 +91,33 @@ const DashboardScreen = () => {
                 View analytics
               </Text>
             </View>
-            <Text style={styles.balanceAmount}>
+            {/* <Text style={styles.balanceAmount}>
               ₦{wallet?.balance?.toLocaleString() || '0'}
             </Text>
+            <Text style={styles.balanceAmount}>
+              ₦{wallet?.pendingBalance?.toLocaleString() || '0'}
+            </Text> */}
+            <View style={styles.walletAmountContainer}>
+              <Text style={styles.walletAmount}>
+                {formatCurrency(wallet?.balance || 0)}
+              </Text>
+              <View style={styles.walletTrendIndicator}>
+                <Icon name="trending-up" size={16} color="#4CAF50" />
+                <Text style={styles.trendText}>2.5% this week</Text>
+              </View>
+            </View>
+
+            <View style={styles.pendingBalanceContainer}>
+              <View style={styles.pendingBalancePill}>
+                <Text style={styles.pendingLabel}>Pending:</Text>
+                <Text style={styles.pendingAmount}>
+                  {formatCurrency(wallet?.pendingBalance || 0)}
+                </Text>
+                <View style={styles.pendingTooltip}>
+                  <Icon name="information-circle" size={14} color="#666" />
+                </View>
+              </View>
+            </View>
 
             <View style={styles.walletActions}>
               <TouchableOpacity
@@ -255,6 +289,71 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#00796B',
     marginBottom: 20,
+  },
+  walletHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  walletTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#008080',
+    marginLeft: 8,
+  },
+  walletAmountContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginBottom: 5,
+  },
+  walletAmount: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#333',
+    letterSpacing: 0.5,
+  },
+  walletTrendIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  trendText: {
+    fontSize: 12,
+    color: '#4CAF50',
+    marginLeft: 4,
+  },
+  pendingBalanceContainer: {
+    borderTopWidth: 1,
+    borderTopColor: '#f5f5f5',
+    paddingTop: 12,
+    paddingBottom: 16,
+  },
+  pendingBalancePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 128, 128, 0.08)',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  pendingLabel: {
+    fontSize: 13,
+    color: '#666',
+    marginRight: 6,
+  },
+  pendingAmount: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#008080',
+  },
+  pendingTooltip: {
+    marginLeft: 6,
+    opacity: 0.7,
   },
   walletActions: {
     flexDirection: 'row',

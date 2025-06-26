@@ -59,7 +59,7 @@ const WithdrawalOTPScreen = () => {
         });
       }
     } catch (error: any) {
-      //   console.log(error.message, error.response.data);
+      // console.log(error.message, error.response);
       Alert.alert(
         'Error',
         error?.response?.data?.error ||
@@ -73,7 +73,6 @@ const WithdrawalOTPScreen = () => {
 
   const resendOTP = async () => {
     setCountdown(60);
-    // You might need to implement resend logic if Paystack supports it
     try {
       const response = await axiosInstance.post('/payments/resend_otp', {
         entityType: 'rider',
@@ -85,10 +84,8 @@ const WithdrawalOTPScreen = () => {
         // response.data.data.message || 'A new OTP has been sent to your phone',
       );
     } catch (error: any) {
-      Alert.alert(
-        'Error',
-        error.response?.data?.error || error?.message || 'Failed to resend OTP',
-      );
+      console.log(error.response?.data?.error, error?.message),
+        Alert.alert('Error', 'Failed to resend OTP');
     }
   };
 

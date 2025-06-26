@@ -85,7 +85,8 @@ const WalletFundScreen = () => {
         </View>
 
         <PaystackProvider
-          publicKey="pk_test_33b8b339f59b4db53664adcb9c9eaf55f6b5892f"
+          // publicKey="pk_test_33b8b339f59b4db53664adcb9c9eaf55f6b5892f"
+          publicKey="pk_live_7867daf55cd483721fed9f816c79ad0817987579"
           currency="NGN"
           defaultChannels={['card', 'bank', 'ussd', 'qr', 'mobile_money']}>
           <PaystackPayment

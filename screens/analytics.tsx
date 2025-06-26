@@ -14,6 +14,7 @@ import Ionicons from '@react-native-vector-icons/ionicons';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import axiosInstance from '../store/instance';
 import {useSelector} from 'react-redux';
+import { formatCurrency } from '../util/helpers';
 
 // Interface definitions
 interface Wallet {
@@ -85,15 +86,6 @@ const RiderAnalyticsScreen = () => {
     'earnings',
   );
   const [refreshing, setRefreshing] = useState(false);
-
-  // Helper functions
-  const formatCurrency = (value: string | number) => {
-    const num = typeof value === 'string' ? parseFloat(value) : value;
-    return `₦${num.toLocaleString('en-NG', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
