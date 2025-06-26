@@ -26,7 +26,7 @@ import MapView, {Marker, Polyline} from 'react-native-maps';
 import {
   useAcceptOrderMutation,
   useGetOrderDetailsQuery,
-} from './store/ordersApi';
+} from '../store/ordersApi';
 import {useSelector} from 'react-redux';
 import {skipToken} from '@reduxjs/toolkit/query';
 import Ionicon from '@react-native-vector-icons/ionicons';
@@ -198,7 +198,7 @@ const OrderDetailsScreen = ({route, navigation}) => {
               <Badge
                 colorScheme={order.acceptedAt ? 'success' : 'warning'}
                 alignSelf="flex-start">
-                {order.status}
+                {order?.status?.toUpperCase()?.split('_').join(' ')}
               </Badge>
               <HStack space={2} >
                 <Text>Refresh</Text>

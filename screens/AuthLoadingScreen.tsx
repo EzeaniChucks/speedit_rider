@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { StackActions, useNavigation } from '@react-navigation/native';
-// import AsyncStorage from '@react-native-async-storage/async-storage'; // For persisting token
+import AsyncStorage from '@react-native-async-storage/async-storage'; // For persisting token
 
 import { RootState, AppDispatch } from '../store';
 // import { setCredentials } from '../store/authSlice'; // If loading from AsyncStorage

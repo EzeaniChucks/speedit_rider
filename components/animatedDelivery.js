@@ -143,7 +143,7 @@ const DeliveryAnimation = ({status}) => {
         </>
       )}
       <Animated.Image
-        source={require('../../assests/orderStatusImages/in_transit.png')}
+        source={require('../assests/orderStatusImages/in_transit.png')}
         style={[
           styles.rider,
           {

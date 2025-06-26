@@ -24,7 +24,7 @@ const AccountCreatedScreen = ({navigation}) => {
 
       <View style={styles.content}>
         <Image
-          source={require('../assests/onboarding5.jpg')} // Replace with your image path
+          source={require('../../assests/onboarding5.jpg')} // Replace with your image path
           style={styles.image}
         />
         <Text style={styles.successMessage}>

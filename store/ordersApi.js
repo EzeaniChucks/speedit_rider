@@ -50,7 +50,7 @@ export const ordersApi = createApi({
       onQueryStarted: async (arg, {dispatch, queryFulfilled}) => {
         try {
           const {data} = await queryFulfilled;
-          console.log('here is the order details from rtk api:', data);
+          // console.log('here is the order details from rtk api:', data);
           dispatch(setSelectedOrder(data?.data));
         } catch (error) {
           console.error('Failed to fetch order details:', error);
@@ -108,29 +108,29 @@ export const ordersApi = createApi({
     // === LOCATION TRACKING ===
     updateRiderLocation: builder.mutation({
       query: ({lat, lng}) => ({
-        url: 'riders/location/',
+        url: 'location/',
         method: 'PUT',
         body: {lat, lng},
       }),
       // No invalidation needed as this is a "fire-and-forget" update
     }),
     getRiderLocation: builder.query({
-      query: () => 'riders/location/',
+      query: () => 'location/',
       providesTags: ['RiderLocation'],
     }),
     // === WALLET & PAYMENTS ===
     getWalletBalance: builder.query({
-      query: () => 'riders/wallet/',
+      query: () => 'wallet/',
       providesTags: ['Wallet'],
     }),
     getWalletTransactions: builder.query({
       query: ({page = 1, limit = 10}) =>
-        `riders/wallet/transactions?page=${page}&limit=${limit}`,
+        `wallet/transactions?page=${page}&limit=${limit}`,
       providesTags: ['WalletTransactions'],
     }),
     fundWallet: builder.mutation({
       query: ({amount}) => ({
-        url: 'riders/wallet/fund/',
+        url: 'wallet/fund/',
         method: 'POST',
         body: {amount},
       }),

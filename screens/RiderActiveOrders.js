@@ -15,10 +15,10 @@ import OrderSection from './OrderSect';
 
 import {useGetAvailableOrdersQuery} from '../store/ordersApi';
 import {skipToken} from '@reduxjs/toolkit/query';
-import UserProfileCard from './components/userProfileCard';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
+import UserProfileCard from '../components/userProfileCard';
 
 const RiderActiveOrders = () => {
   const [riderLocation, setRiderLocation] = useState(null);
@@ -117,7 +117,7 @@ const RiderActiveOrders = () => {
 
   if (!riderLocation) {
     return (
-      <View style={[styles.container, {justifyContent: 'center'}]}>
+      <View style={[styles.container, {justifyContent: 'center', gap: 5}]}>
         <ActivityIndicator size="large" color="teal" />
         {locationError ? (
           <Text style={{textAlign: 'center', color: 'red'}}>

@@ -1,25 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator, Alert } from 'react-native';
-import { Box, Progress } from 'native-base';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import {Box, Progress} from 'native-base';
 import Icons from '@react-native-vector-icons/ant-design';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {
   setLicensePhoto,
   uploadDocumentsThunk,
   resetUploadState,
   fetchVerificationStatusThunk, // Optionally fetch status after upload
   clearAllPhotos,
-} from '../store/verify';
+} from '../../store/verify';
 import UploadBottomSheet from './uploadSheet'; // Adjust path
 
-const LicenseCollectionScreen = ({ route, navigation }) => {
-  const { currentProgress } = route.params || { currentProgress: 100 }; // Default if last screen
+const LicenseCollectionScreen = ({route, navigation}) => {
+  const {currentProgress} = route.params || {currentProgress: 100}; // Default if last screen
   const dispatch = useDispatch();
 
-  const licensePhotoUri = useSelector((state) => state.verification.licensePhotoUri);
-  const { uploadStatus, uploadError, uploadResponse } = useSelector((state) => state.verification);
-  const { verificationStatus, verificationData, verificationError } = useSelector((state) => state.verification);
-
+  const licensePhotoUri = useSelector(
+    state => state.verification.licensePhotoUri,
+  );
+  const {uploadStatus, uploadError, uploadResponse} = useSelector(
+    state => state.verification,
+  );
+  const {verificationStatus, verificationData, verificationError} = useSelector(
+    state => state.verification,
+  );
 
   const [progressValue, setProgressValue] = useState(currentProgress);
   const [isSheetVisible, setSheetVisible] = useState(false);
@@ -28,21 +41,26 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
     // Handle successful upload
     if (uploadStatus === 'succeeded') {
       Alert.alert('Success', 'Documents uploaded successfully!', [
-        { text: 'OK', onPress: () => {
+        {
+          text: 'OK',
+          onPress: () => {
             // Optionally fetch verification status now
             // dispatch(fetchVerificationStatusThunk());
             dispatch(resetUploadState());
             dispatch(clearAllPhotos()); // Clear photos from redux
-            navigation.navigate('MainApp'); // Or a success/status screen
-          }
-        }
+            navigation.navigate('MainApp', {screen: 'Home'}); // Or a success/status screen
+          },
+        },
       ]);
     }
     // Handle failed upload
     if (uploadStatus === 'failed') {
-      const errorMessage = uploadError?.message || JSON.stringify(uploadError) || 'An unknown error occurred during upload.';
+      const errorMessage =
+        uploadError?.message ||
+        JSON.stringify(uploadError) ||
+        'An unknown error occurred during upload.';
       Alert.alert('Upload Failed', errorMessage, [
-        { text: 'OK', onPress: () => dispatch(resetUploadState()) }
+        {text: 'OK', onPress: () => dispatch(resetUploadState())},
       ]);
     }
   }, [uploadStatus, uploadResponse, uploadError, dispatch, navigation]);
@@ -50,16 +68,18 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
   // Optionally, handle verification status changes
   useEffect(() => {
     if (verificationStatus === 'succeeded') {
-      console.log("Verification Status Data:", verificationData);
+      console.log('Verification Status Data:', verificationData);
       // Navigate or update UI based on verificationData
     } else if (verificationStatus === 'failed') {
-      console.error("Verification Status Error:", verificationError);
-      Alert.alert('Status Check Failed', verificationError?.message || 'Could not fetch verification status.');
+      console.error('Verification Status Error:', verificationError);
+      Alert.alert(
+        'Status Check Failed',
+        verificationError?.message || 'Could not fetch verification status.',
+      );
     }
   }, [verificationStatus, verificationData, verificationError]);
 
-
-  const handleImageSelected = (imageData) => {
+  const handleImageSelected = imageData => {
     if (imageData) {
       dispatch(setLicensePhoto(imageData));
     }
@@ -68,7 +88,7 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
 
   const handleUploadDocuments = () => {
     if (!licensePhotoUri) {
-      Alert.alert("Missing Photo", "Please upload your license photo.");
+      Alert.alert('Missing Photo', 'Please upload your license photo.');
       return;
     }
     // All photos should be in Redux state by now (idPhoto, vehiclePhoto, licensePhoto)
@@ -79,17 +99,22 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
     dispatch(fetchVerificationStatusThunk());
   };
 
-
   return (
     <View style={styles.container}>
       <Box safeAreaTop paddingX={4} paddingTop={4}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Icons name="arrowleft" size={30} color='teal' />
+            <Icons name="left-circle" size={30} color="teal" />
           </TouchableOpacity>
           <Text style={styles.title}>Document collection</Text>
         </View>
-        <Progress value={progressValue} colorScheme="teal" size="md" mt={4} mb={4} />
+        <Progress
+          value={progressValue}
+          colorScheme="teal"
+          size="md"
+          mt={4}
+          mb={4}
+        />
       </Box>
 
       <View style={styles.content}>
@@ -98,28 +123,33 @@ const LicenseCollectionScreen = ({ route, navigation }) => {
           Photo of your valid driver's license.
         </Text>
 
-        {licensePhotoUri && <Image source={{ uri: licensePhotoUri }} style={styles.imagePreview} />}
+        {licensePhotoUri && (
+          <Image source={{uri: licensePhotoUri}} style={styles.imagePreview} />
+        )}
 
         <TouchableOpacity
           style={styles.uploadButton}
           onPress={() => setSheetVisible(true)}>
-          <Text style={styles.buttonText}>{licensePhotoUri ? 'Change License Photo' : 'Upload License Photo'}</Text>
+          <Text style={styles.buttonText}>
+            {licensePhotoUri ? 'Change License Photo' : 'Upload License Photo'}
+          </Text>
         </TouchableOpacity>
       </View>
 
       {uploadStatus === 'loading' ? (
         <ActivityIndicator size="large" color="teal" style={styles.loader} />
       ) : (
-        <TouchableOpacity style={styles.submitButton} onPress={handleUploadDocuments}>
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleUploadDocuments}>
           <Text style={styles.buttonText}>Submit All Documents</Text>
         </TouchableOpacity>
       )}
 
-       {/* Optional: Button to manually check status */}
+      {/* Optional: Button to manually check status */}
       {/* <TouchableOpacity style={[styles.submitButton, {backgroundColor: 'blue'}]} onPress={handleFetchStatus}>
         {verificationStatus === 'loading' ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Check Verification Status</Text>}
       </TouchableOpacity> */}
-
 
       <UploadBottomSheet
         visible={isSheetVisible}
@@ -196,7 +226,7 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginVertical: 20,
-  }
+  },
 });
 
 export default LicenseCollectionScreen;

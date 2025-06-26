@@ -74,8 +74,8 @@ const OrderCard = ({offer}) => {
           <VStack width={'40%'}>
             <Text style={styles.label}>Ongoing Order Status</Text>
             <View style={styles.orderStatus}>
-              <Text style={{fontSize: 13, color: 'white'}}>
-                {offer?.status?.toUpperCase()}
+              <Text style={{fontSize: 10, color: 'white', textAlign:"center"}}>
+                {offer?.status?.toUpperCase()?.split('_').join(' ')}
               </Text>
             </View>
           </VStack>
@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#00695C',
     padding: 3,
+    paddingHorizontal: 5,
     borderRadius: 15,
     fontWeight: 'bold',
   },

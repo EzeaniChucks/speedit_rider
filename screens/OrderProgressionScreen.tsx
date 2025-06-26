@@ -1,12 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Linking,
   Alert,
   ActivityIndicator,
   Image,
-  Animated, // Added Animated
-  Easing, // Added Easing
 } from 'react-native';
 import {ScrollView} from 'react-native';
 import {
@@ -24,15 +22,28 @@ import {
   useConfirmVendorPaymentMutation,
   useUpdateOrderStatusMutation,
 } from '../store/ordersApi';
-import MapView, {Marker, Polyline} from 'react-native-maps';
-import Ionicons from '@react-native-vector-icons/ionicons'; // Fixed import
+import Ionicons from '@react-native-vector-icons/ionicons';
 import {useDispatch, useSelector} from 'react-redux';
 import {setSelectedOrder} from '../store/ordersSlice';
-import DeliveryAnimation from './components/animatedDelivery';
+import DeliveryAnimation from '../components/animatedDelivery';
+// import type {Order} from '../types/orderTypes'; // Assuming you have this type
 
-const OrderProgressScreen = ({route, navigation}) => {
-  const {selectedOrder: order} = useSelector(state => state.orders);
+type OrderProgressScreenProps = {
+  route: any;
+  navigation: any;
+};
 
+type StatusFlowItem = {
+  next: string | null;
+  action: string;
+  color: string;
+};
+
+const OrderProgressScreen: React.FC<OrderProgressScreenProps> = ({
+  route,
+  navigation,
+}) => {
+  const {selectedOrder: order} = useSelector((state: any) => state.orders);
   const dispatch = useDispatch();
 
   // RTK Query mutations
@@ -42,11 +53,29 @@ const OrderProgressScreen = ({route, navigation}) => {
   const [confirmPayment, {isLoading: isConfirming}] =
     useConfirmVendorPaymentMutation();
 
-  // Status progression configuration
-  const STATUS_FLOW = {
+  // Updated status progression configuration
+  const STATUS_FLOW: Record<string, StatusFlowItem> = {
     pending: {next: 'accepted', action: 'Accept', color: 'warning'},
-    accepted: {next: 'picked_up', action: 'Pick Up', color: 'info'},
-    picked_up: {next: 'in_transit', action: 'Start Delivery', color: 'primary'},
+    accepted: {
+      next: 'heading_to_restaurant',
+      action: 'Start Trip',
+      color: 'info',
+    },
+    heading_to_restaurant: {
+      next: 'arrived_at_restaurant',
+      action: 'Arrived at Restaurant',
+      color: 'info',
+    },
+    arrived_at_restaurant: {
+      next: 'picked_up',
+      action: 'Pick Up Order',
+      color: 'primary',
+    },
+    picked_up: {
+      next: 'in_transit',
+      action: 'Start Delivery',
+      color: 'primary',
+    },
     in_transit: {
       next: 'delivered',
       action: 'Complete Delivery',
@@ -55,32 +84,26 @@ const OrderProgressScreen = ({route, navigation}) => {
     delivered: {next: null, action: 'Done', color: 'success'},
   };
 
-  const handleStatusUpdate = async newStatus => {
+  const handleStatusUpdate = async (newStatus: string) => {
     try {
       if (newStatus === 'accepted') {
         const result = await acceptOrder(order.id).unwrap();
-        // console.log('accept response', result);
         dispatch(setSelectedOrder(result?.data));
       } else {
         const result = await updateStatus({
           orderId: order.id,
           status: newStatus,
         }).unwrap();
-
-        // console.log('status update response', result);
         dispatch(setSelectedOrder(result?.data));
 
         if (newStatus === 'delivered') {
           navigation.replace('DeliveryAcknowledgement', {
             order: result.data,
-            // Optional: Add animation for celebration
             animation: 'fade',
           });
         }
       }
-    } catch (error) {
-      // Alert
-      // console.log('error from order update:', error);
+    } catch (error: any) {
       Alert.alert(
         'Error',
         error.data?.data ||
@@ -93,13 +116,9 @@ const OrderProgressScreen = ({route, navigation}) => {
   const handleConfirmPayment = async () => {
     try {
       const result = await confirmPayment(order.id).unwrap();
-
-      // console.log('confirm payments response:', result);
       dispatch(setSelectedOrder(result?.data));
-      // Alert
       Alert.alert('Success', 'Vendor payment confirmed!');
-    } catch (error) {
-      // Alert
+    } catch (error: any) {
       Alert.alert(
         'Error',
         error.data?.data || error.data?.error || 'Failed to confirm payment',
@@ -107,12 +126,16 @@ const OrderProgressScreen = ({route, navigation}) => {
     }
   };
 
-  const getStatusIcon = status => {
+  const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
         return 'time-outline';
       case 'accepted':
         return 'checkmark-circle';
+      case 'heading_to_restaurant':
+        return 'car';
+      case 'arrived_at_restaurant':
+        return 'location';
       case 'picked_up':
         return 'fast-food';
       case 'in_transit':
@@ -132,7 +155,7 @@ const OrderProgressScreen = ({route, navigation}) => {
       <Button
         colorScheme={currentStatus.color}
         leftIcon={<Icon as={Ionicons} name={getStatusIcon(order.status)} />}
-        onPress={() => handleStatusUpdate(currentStatus.next)}
+        onPress={() => handleStatusUpdate(currentStatus.next as string)}
         isLoading={isAccepting || isUpdating}
         mt={1}>
         {currentStatus.action}
@@ -141,25 +164,43 @@ const OrderProgressScreen = ({route, navigation}) => {
   };
 
   const renderProgressSteps = () => {
-    const steps = ['accepted', 'picked_up', 'in_transit', 'delivered'];
+    const steps = [
+      'accepted',
+      'heading_to_restaurant',
+      'arrived_at_restaurant',
+      'picked_up',
+      'in_transit',
+      'delivered',
+    ];
     const currentIndex = steps.indexOf(order.status);
 
     return (
       <VStack space={2} mt={4}>
-        <Progress value={(currentIndex + 1) * 25} colorScheme="teal" />
+        <Progress
+          value={Math.round(((currentIndex + 1) / steps.length) * 100)}
+          colorScheme="teal"
+        />
         <HStack justifyContent="space-between">
           {steps.map((step, index) => (
-            <VStack alignItems="center" key={step}>
+            <VStack
+              alignItems="center"
+              key={step}
+              flex={index === currentIndex ? 2 : 1} // Current step takes more space
+            >
               <Icon
                 as={Ionicons}
                 name={getStatusIcon(step)}
                 color={index <= currentIndex ? 'teal.500' : 'gray.300'}
-                size="sm"
+                size={index === currentIndex ? 'md' : 'sm'}
               />
               <Text
-                fontSize="xs"
+                fontSize={index === currentIndex ? 'xs' : '2xs'}
+                numberOfLines={1}
                 color={index <= currentIndex ? 'teal.500' : 'gray.400'}>
-                {step.replace('_', ' ')}
+                {index === currentIndex
+                  ? step.split('_').join(' ')
+                  : // step.split('_').map(w => w[0]).join('')
+                    ''}
               </Text>
             </VStack>
           ))}
@@ -171,15 +212,18 @@ const OrderProgressScreen = ({route, navigation}) => {
   const statusImages = {
     pending: require('../assests/orderStatusImages/pending.png'),
     accepted: require('../assests/orderStatusImages/accepted.png'),
+    heading_to_restaurant: require('../assests/orderStatusImages/in_transit.png'),
+    arrived_at_restaurant: require('../assests/orderStatusImages/accepted.png'),
     picked_up: require('../assests/orderStatusImages/picked_up.png'),
     in_transit: require('../assests/orderStatusImages/in_transit.png'),
     delivered: require('../assests/orderStatusImages/delivered.png'),
   };
 
-  const getStatusImage = status =>
-    statusImages[status] || statusImages['pending'];
+  const getStatusImage = (status: string) =>
+    statusImages[status as keyof typeof statusImages] || statusImages.pending;
 
-  const orderHasLeftRestaurant =
+  const riderHasReachedOrLeftRestaurant =
+    order.status === 'arrived_at_restaurant' ||
     order.status === 'picked_up' ||
     order.status === 'in_transit' ||
     order.status === 'delivered';
@@ -187,37 +231,32 @@ const OrderProgressScreen = ({route, navigation}) => {
   return (
     <Box flex={1} bg="white">
       <Box style={styles.header} height="10%">
-        <Text
-          style={{fontSize: 25, height: 30, fontWeight: 'bold', color: 'grey'}}>
-          Order Action
+        <Text fontSize="2xl" fontWeight="bold" color="gray.700">
+          Order Progress
         </Text>
       </Box>
 
       {/* Animated Delivery Image Section */}
       <Box alignItems="center" justifyContent="center" height="20%" px={4}>
-        {order.status === 'in_transit' ? (
+        {order.status === 'in_transit' ||
+        order.status === 'heading_to_restaurant' ? (
           <DeliveryAnimation status={order.status} />
         ) : (
           <Image
             source={getStatusImage(order.status)}
-            style={{
-              width: '100%',
-              height: '100%',
-              resizeMode: 'contain',
-              borderRadius: 12,
-            }}
+            style={styles.statusImage}
           />
         )}
       </Box>
 
       {/* Content Section */}
-      <ScrollView p={4} contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <VStack space={4}>
           {/* Order Status */}
           <Badge
             colorScheme={STATUS_FLOW[order.status]?.color || 'coolGray'}
             alignSelf="flex-start">
-            {order.status.toUpperCase().replace('_', ' ')}
+            {order.status.toUpperCase().split('_').join(' ')}
           </Badge>
 
           {/* Progress Tracker */}
@@ -249,7 +288,7 @@ const OrderProgressScreen = ({route, navigation}) => {
               <Text mt={1}>
                 Please give ₦{order?.subTotal} to the restaurant
               </Text>
-              <Text style={{color: 'gray'}} mt={1}>
+              <Text color="gray.500" mt={1}>
                 Speedit will settle this amount to your wallet on order
                 completion
               </Text>
@@ -261,11 +300,11 @@ const OrderProgressScreen = ({route, navigation}) => {
                 leftIcon={<Icon as={Ionicons} name="cash" />}>
                 {isConfirming ? (
                   <HStack space={2}>
-                    <ActivityIndicator color={'white'} />
-                    <Text style={{color: 'white'}}>Confirming</Text>
+                    <ActivityIndicator color="white" />
+                    <Text color="white">Confirming</Text>
                   </HStack>
                 ) : (
-                  <Text style={{color: 'white'}}>Confirm Cash Payment</Text>
+                  'Confirm Cash Payment'
                 )}
               </Button>
             </Box>
@@ -307,14 +346,16 @@ const OrderProgressScreen = ({route, navigation}) => {
                 flex={1}
                 leftIcon={<Icon as={Ionicons} name="navigate" />}
                 onPress={() => {
-                  const coords = orderHasLeftRestaurant
+                  const coords = riderHasReachedOrLeftRestaurant
                     ? order.deliveryLocation.coordinates
                     : order.pickupLocation.coordinates;
                   Linking.openURL(
                     `https://www.google.com/maps/dir/?api=1&destination=${coords[0]},${coords[1]}`,
                   );
                 }}>
-                {orderHasLeftRestaurant ? 'To Customer' : 'To Restaurant'}
+                {riderHasReachedOrLeftRestaurant
+                  ? 'To Customer'
+                  : 'To Restaurant'}
               </Button>
             </HStack>
           </VStack>
@@ -342,6 +383,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     paddingBottom: 24,
+  },
+  statusImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+    borderRadius: 12,
   },
 });
 

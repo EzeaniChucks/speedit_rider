@@ -1,31 +1,38 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Button, Box } from 'native-base';
+import React, {useState, useRef} from 'react';
+import {
+  View,
+  StyleSheet,
+  Image,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {Text, Button, Box} from 'native-base';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 const slides = [
   {
     key: '1',
     title: 'Welcome to Speedit Delivery',
     description: 'Deliver food from your favorite restaurants to customers.',
-    image: require('./assests/onboarding1.jpg'),
+    image: require('../../assests/onboarding1.jpg'),
   },
   {
     key: '2',
     title: 'Easy Navigation',
     description: 'Navigate easily to pick up and drop off locations.',
-    image: require('./assests/onboarding2.jpg'),
+    image: require('../../assests/onboarding2.jpg'),
   },
   {
     key: '3',
     title: 'Track Your Earnings',
     description: 'Keep track of your earnings and tips in real-time.',
-    image: require('./assests/onboarding3.jpg'),
+    image: require('../../assests/onboarding3.jpg'),
   },
 ];
 
-const OnboardingScreen = ({ navigation }) => {
+const OnboardingScreen = ({navigation}) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollViewRef = useRef(null);
 
@@ -45,7 +52,7 @@ const OnboardingScreen = ({ navigation }) => {
     }
   };
 
-  const scrollToSlide = (index) => {
+  const scrollToSlide = index => {
     setCurrentSlide(index);
     scrollViewRef.current?.scrollTo({
       x: width * index,
@@ -53,26 +60,25 @@ const OnboardingScreen = ({ navigation }) => {
     });
   };
 
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / width);
     setCurrentSlide(index);
   };
 
   const SignUp = () => {
-    navigation.navigate('CreateAccountScreen');
+    navigation.navigate('RegisterPersonalInfo');
   };
 
   return (
     <Box flex={1} backgroundColor="white">
       {/* Back button (only shown when not on first slide) */}
       {currentSlide > 0 && (
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handleBack}
           style={styles.backButton}
-          activeOpacity={0.7}
-        >
-          <Text style={{ fontSize: 40 }}> ‹ </Text>
+          activeOpacity={0.7}>
+          <Text style={{fontSize: 40}}> ‹ </Text>
         </TouchableOpacity>
       )}
 
@@ -83,15 +89,24 @@ const OnboardingScreen = ({ navigation }) => {
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
-        contentOffset={{ x: width * currentSlide, y: 0 }}
-      >
-        {slides.map((slide) => (
-          <View key={slide.key} style={[styles.slide, { width }]}>
+        contentOffset={{x: width * currentSlide, y: 0}}>
+        {slides.map(slide => (
+          <View key={slide.key} style={[styles.slide, {width}]}>
             <Image source={slide.image} style={styles.image} />
-            <Text fontSize="2xl" fontWeight="bold" mt={4} textAlign="center" px={8}>
+            <Text
+              fontSize="2xl"
+              fontWeight="bold"
+              mt={4}
+              textAlign="center"
+              px={8}>
               {slide.title}
             </Text>
-            <Text fontSize="md" textAlign="center" mt={2} px={8} color="gray.600">
+            <Text
+              fontSize="md"
+              textAlign="center"
+              mt={2}
+              px={8}
+              color="gray.600">
               {slide.description}
             </Text>
           </View>
@@ -104,8 +119,7 @@ const OnboardingScreen = ({ navigation }) => {
           <TouchableOpacity
             key={index}
             onPress={() => scrollToSlide(index)}
-            activeOpacity={0.6}
-          >
+            activeOpacity={0.6}>
             <View
               style={[
                 styles.indicator,
@@ -122,21 +136,19 @@ const OnboardingScreen = ({ navigation }) => {
           onPress={handleNext}
           style={styles.button}
           backgroundColor="teal.500"
-          _text={{ color: 'white', fontWeight: 'semibold' }}
-          _pressed={{ opacity: 0.8 }}
-        >
+          _text={{color: 'white', fontWeight: 'semibold'}}
+          _pressed={{opacity: 0.8}}>
           {currentSlide === slides.length - 1 ? 'Get Started' : 'Next'}
         </Button>
-        
+
         {currentSlide === slides.length - 1 && (
           <Button
             onPress={SignUp}
             style={styles.secondaryButton}
             variant="outline"
             borderColor="teal.500"
-            _text={{ color: 'teal.500', fontWeight: 'semibold' }}
-            _pressed={{ bg: 'teal.100' }}
-          >
+            _text={{color: 'teal.500', fontWeight: 'semibold'}}
+            _pressed={{bg: 'teal.100'}}>
             Sign Up
           </Button>
         )}
