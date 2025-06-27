@@ -14,7 +14,7 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {TextInput} from 'react-native-paper';
 import AntDesign from '@react-native-vector-icons/ant-design';
-import {useInitiatePasswordResetMutation} from '../../store/authApi';
+import {useInitiatePasswordResetMutation} from '../../../store/authApi';
 
 const ForgotPasswordScreen = () => {
   const [email, setEmail] = useState('');

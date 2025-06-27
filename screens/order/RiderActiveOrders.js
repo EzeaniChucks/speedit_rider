@@ -54,7 +54,9 @@ const RiderActiveOrders = () => {
   const getLocation = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      setLocationError('Location permission denied.');
+      setLocationError(
+        'Location permission denied. Please grant location access in your settings to find orders.',
+      );
       Alert.alert(
         'Permission Denied',
         'Please grant location access in your settings to find orders.',
@@ -69,7 +71,7 @@ const RiderActiveOrders = () => {
         setLocationError(null);
       },
       error => {
-         console.log(error);
+        console.log(error);
         setLocationError('Could not fetch location.');
         Alert.alert(
           'Location Error',

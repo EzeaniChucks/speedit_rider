@@ -21,11 +21,12 @@ import {
   useAcceptOrderMutation,
   useConfirmVendorPaymentMutation,
   useUpdateOrderStatusMutation,
-} from '../store/ordersApi';
+} from '../../store/ordersApi';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import {useDispatch, useSelector} from 'react-redux';
-import {setSelectedOrder} from '../store/ordersSlice';
-import DeliveryAnimation from '../components/animatedDelivery';
+import {setSelectedOrder} from '../../store/ordersSlice';
+import DeliveryAnimation from '../../components/animatedDelivery';
+import Header from '../../components/header';
 // import type {Order} from '../types/orderTypes'; // Assuming you have this type
 
 type OrderProgressScreenProps = {
@@ -210,13 +211,13 @@ const OrderProgressScreen: React.FC<OrderProgressScreenProps> = ({
   };
 
   const statusImages = {
-    pending: require('../assests/orderStatusImages/pending.png'),
-    accepted: require('../assests/orderStatusImages/accepted.png'),
-    heading_to_restaurant: require('../assests/orderStatusImages/in_transit.png'),
-    arrived_at_restaurant: require('../assests/orderStatusImages/accepted.png'),
-    picked_up: require('../assests/orderStatusImages/picked_up.png'),
-    in_transit: require('../assests/orderStatusImages/in_transit.png'),
-    delivered: require('../assests/orderStatusImages/delivered.png'),
+    pending: require('../../assests/orderStatusImages/pending.png'),
+    accepted: require('../../assests/orderStatusImages/accepted.png'),
+    heading_to_restaurant: require('../../assests/orderStatusImages/in_transit.png'),
+    arrived_at_restaurant: require('../../assests/orderStatusImages/accepted.png'),
+    picked_up: require('../../assests/orderStatusImages/picked_up.png'),
+    in_transit: require('../../assests/orderStatusImages/in_transit.png'),
+    delivered: require('../../assests/orderStatusImages/delivered.png'),
   };
 
   const getStatusImage = (status: string) =>
@@ -230,11 +231,7 @@ const OrderProgressScreen: React.FC<OrderProgressScreenProps> = ({
 
   return (
     <Box flex={1} bg="white">
-      <Box style={styles.header} height="10%">
-        <Text fontSize="2xl" fontWeight="bold" color="gray.700">
-          Order Progress
-        </Text>
-      </Box>
+      <Header title={'Order Progress'} />
 
       {/* Animated Delivery Image Section */}
       <Box alignItems="center" justifyContent="center" height="20%" px={4}>

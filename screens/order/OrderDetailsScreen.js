@@ -28,6 +28,7 @@ import {
 import {useSelector} from 'react-redux';
 import {skipToken} from '@reduxjs/toolkit/query';
 import Ionicon from '@react-native-vector-icons/ionicons';
+import Header from '../../components/header';
 
 const OrderDetailsScreen = ({route, navigation}) => {
   // const toast = useToast();
@@ -167,7 +168,7 @@ const OrderDetailsScreen = ({route, navigation}) => {
               leftIcon={<Icon as={Ionicons} size={7} name="close-circle" />}
               onPress={handleDecline}>
               <Text style={{color: 'white'}}>
-                Cancel Delivery (- {order.riderRatingImpact} rating)
+                Cancel Delivery (- {order.riderRatingImpact} rating impact)
               </Text>
             </Button>
           </>
@@ -181,9 +182,7 @@ const OrderDetailsScreen = ({route, navigation}) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 0}>
-      <Box style={styles.header} height="5%">
-        <Text style={{fontSize: 25, fontWeight: 'bold'}}>Order Details</Text>
-      </Box>
+      <Header title="Order Details" />
       {/* Scrollable Content */}
       <ScrollView
         flex={1}
@@ -191,14 +190,14 @@ const OrderDetailsScreen = ({route, navigation}) => {
         showsVerticalScrollIndicator={false}>
         <Box p={4} mt={3}>
           <VStack space={4}>
-            <HStack space={7} style={{justifyContent:"space-between"}}>
+            <HStack space={7} style={{justifyContent: 'space-between'}}>
               {/* Order Status */}
               <Badge
                 colorScheme={order.acceptedAt ? 'success' : 'warning'}
                 alignSelf="flex-start">
                 {order?.status?.toUpperCase()?.split('_').join(' ')}
               </Badge>
-              <HStack space={2} >
+              <HStack space={2}>
                 <Text>Refresh</Text>
                 <TouchableOpacity
                   style={styles.refreshButton}

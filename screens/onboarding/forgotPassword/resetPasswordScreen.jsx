@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { TextInput } from 'react-native-paper';
-import { useCompletePasswordResetMutation } from '../../store/authApi';
+import { useCompletePasswordResetMutation } from '../../../store/authApi';
 import AntDesign from '@react-native-vector-icons/ant-design';
 
 const ForgotPasswordCompleteScreen = () => {

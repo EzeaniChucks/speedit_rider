@@ -33,11 +33,11 @@ import {firebaseConfig} from './firebaseCon';
 import LicenseCollectionScreen from './screens/onboarding/LicenseCollection ';
 import AvailableOrdersScreen from './screens/avalOrders';
 import AvailableRidersScreen from './screens/availDash';
-import OrderProgressScreen from './screens/OrderProgressionScreen';
+import OrderProgressScreen from './screens/order/OrderProgressionScreen';
 import DeliveryAcknowledgement from './screens/DeliveryAcknowledgement';
 import TransactionHistoryScreen from './screens/transactionsHistory';
-import ForgotPasswordScreen from './screens/forgotPassword/forgotPasswordScreen';
-import ForgotPasswordCompleteScreen from './screens/forgotPassword/resetPasswordScreen';
+import ForgotPasswordScreen from './screens/onboarding/forgotPassword/forgotPasswordScreen';
+import ForgotPasswordCompleteScreen from './screens/onboarding/forgotPassword/resetPasswordScreen';
 import SplashScreen from './screens/onboarding/splash';
 import RegistrationPersonalInformationScreen from './screens/onboarding/Registration_Personal_Info';
 import RegistrationVehicleInformationScreen from './screens/onboarding/Registration_Vehicle_Info';
@@ -51,6 +51,7 @@ import InitiatePasswordResetScreen from './screens/mainScreens/bottomTabs/profil
 import VerifyPasswordResetScreen from './screens/mainScreens/bottomTabs/profileManagement/verifyPasswordResetScreen';
 import PasswordResetSuccessScreen from './screens/mainScreens/bottomTabs/profileManagement/passwordResetSuccessScreen';
 import OrderHistoryScreen from './screens/order/OrderHistoryScreen';
+import {requestUserPermissionAndGetToken} from './firbaseSetup';
 
 const Stack = createStackNavigator();
 
@@ -60,96 +61,6 @@ const RootNavigation = () => {
       firebase.initializeApp(firebaseConfig);
     }
   }, []);
-
-  // Internal function to get the token
-  async function getFcmTokenInternal(dispatch) {
-    // Pass dispatch if storing in Redux
-    try {
-      const token = await messaging().getToken();
-      if (token) {
-        console.log('FCM Token Generated:', token);
-        // **IMPORTANT: Send this token to your backend server and associate it with the user.**
-        // Example: await api.sendFcmTokenToServer(token);
-
-        // Optionally, store it in Redux state
-        if (dispatch) {
-          dispatch(setFcmToken(token));
-        }
-        return token;
-      } else {
-        // console.log(
-        //   'Failed to get FCM token. messaging().getToken() returned null/undefined.',
-        // );
-        Alert.alert(
-          'FCM Error',
-          'Could not retrieve a messaging token. Notifications might not work.',
-        );
-        return null;
-      }
-    } catch (error) {
-      // console.error('Error getting FCM token:', error);
-      Alert.alert('FCM Error', `Error getting FCM token: ${error.message}`);
-      return null;
-    }
-  }
-
-  async function requestUserPermissionAndGetToken(dispatch) {
-    // Pass dispatch if storing in Redux
-    let fcmToken = null;
-    // console.log('Requesting user permission for FCM...');
-
-    if (Platform.OS === 'ios') {
-      const authStatus = await messaging().requestPermission();
-      const enabled =
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-      if (enabled) {
-        // console.log('Authorization status (iOS):', authStatus);
-        fcmToken = await getFcmTokenInternal(dispatch);
-      } else {
-        console.log(
-          'User has not granted permission for push notifications (iOS).',
-        );
-        Alert.alert(
-          'Permission Denied',
-          'You will not receive notifications unless you enable them in settings.',
-        );
-      }
-    } else if (Platform.OS === 'android') {
-      if (Platform.Version >= 33) {
-        // Android 13+
-        try {
-          const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-            {
-              title: 'Notification Permission',
-              message: 'This app needs permission to send you notifications.',
-              buttonPositive: 'OK',
-              buttonNegative: 'Cancel',
-            },
-          );
-          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-            // console.log('Notification permission granted (Android 13+).');
-            fcmToken = await getFcmTokenInternal(dispatch);
-          } else {
-            // console.log('Notification permission denied (Android 13+).');
-            Alert.alert(
-              'Permission Denied',
-              'You will not receive notifications.',
-            );
-          }
-        } catch (err) {
-          console.warn('Error requesting POST_NOTIFICATIONS permission:', err);
-        }
-      } else {
-        // Android 12 and below (permission usually granted by default)
-        console.log('Android version < 13, attempting to get token directly.');
-        fcmToken = await getFcmTokenInternal(dispatch);
-      }
-    }
-    return fcmToken;
-  }
 
   // Component to handle FCM setup (can be inside App or a child)
   const FcmHandler = () => {
