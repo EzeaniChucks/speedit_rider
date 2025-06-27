@@ -132,7 +132,7 @@ const SignInScreen = ({navigation}: any) => {
                   placeholder: '#999',
                 },
               }}
-              left={<TextInput.Icon icon="email" color="#999" />}
+              left={<TextInput.Icon icon="email-outline" color="#999" />}
             />
 
             <TextInput
@@ -148,7 +148,7 @@ const SignInScreen = ({navigation}: any) => {
                   placeholder: '#999',
                 },
               }}
-              left={<TextInput.Icon icon="lock" color="#999" />}
+              left={<TextInput.Icon icon="lock-outline" color="#999" />}
               right={
                 <TextInput.Icon
                   icon={showPassword ? 'eye-off' : 'eye'}

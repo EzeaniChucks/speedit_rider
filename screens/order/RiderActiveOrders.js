@@ -11,14 +11,14 @@ import {
 } from 'react-native';
 import Icon from '@react-native-vector-icons/ionicons';
 
-import OrderSection from './OrderSect';
+import OrderSection from '../OrderSect';
 
-import {useGetAvailableOrdersQuery} from '../store/ordersApi';
+import {useGetAvailableOrdersQuery} from '../../store/ordersApi';
 import {skipToken} from '@reduxjs/toolkit/query';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useSelector, useDispatch} from 'react-redux';
 import Geolocation from '@react-native-community/geolocation';
-import UserProfileCard from '../components/userProfileCard';
+import UserProfileCard from '../../components/userProfileCard';
 
 const RiderActiveOrders = () => {
   const [riderLocation, setRiderLocation] = useState(null);

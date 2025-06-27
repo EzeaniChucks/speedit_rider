@@ -1,10 +1,10 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/HomeScreen';
+import HomeScreen from '../screens/mainScreens/bottomTabs/homeScreen';
 import Ionicons from '@react-native-vector-icons/ionicons'; // Fixed import name
-import RiderActiveOrders from '../screens/RiderActiveOrders';
-import RiderProfileScreen from '../screens/profile/userProfileScreen';
-import RiderAnalyticsScreen from '../screens/analytics';
+import RiderAnalyticsScreen from '../screens/mainScreens/bottomTabs/analytics';
+import RiderActiveOrders from '../screens/order/RiderActiveOrders';
+import RiderProfileScreen from '../screens/mainScreens/bottomTabs/profileManagement/userProfileScreen';
 
 const Tab = createBottomTabNavigator();
 

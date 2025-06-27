@@ -12,9 +12,9 @@ import {
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useNavigation} from '@react-navigation/native';
 import {TextInput} from 'react-native-paper';
-import {useUpdateRiderProfileMutation} from '../../store/profileApi';
-import {updateUserProfile} from '../../store/profileSlice';
+import {updateUserProfile} from '../../../../store/profileSlice';
 import {useDispatch, useSelector} from 'react-redux';
+import {useUpdateRiderProfileMutation} from '../../../../store/profileApi';
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
@@ -22,15 +22,14 @@ const EditProfileScreen = () => {
   const user = useSelector(state => state.profile.user);
   const [updateProfile, {isLoading}] = useUpdateRiderProfileMutation();
 
-
-  useEffect(()=>{
+  useEffect(() => {
     // on navigating to profile edit screen,
     // if there is no user, then trigger user fetch
-    if(!user){
+    if (!user) {
       useGetRiderProfileQuery();
     }
-  },[])
-  
+  }, []);
+
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',

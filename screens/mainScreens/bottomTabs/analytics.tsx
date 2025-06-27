@@ -12,9 +12,10 @@ import {
 import {LineChart, PieChart} from 'react-native-chart-kit';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
-import axiosInstance from '../store/instance';
+import axiosInstance from '../../../store/instance';
 import {useSelector} from 'react-redux';
-import { formatCurrency } from '../util/helpers';
+import {formatCurrency} from '../../../util/helpers';
+import {formatDate} from '../../../util/date';
 
 // Interface definitions
 interface Wallet {
@@ -86,15 +87,6 @@ const RiderAnalyticsScreen = () => {
     'earnings',
   );
   const [refreshing, setRefreshing] = useState(false);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
 
   const fetchAnalyticsData = async (
     range: 'today' | 'week' | 'month' | 'year' = timeRange,
@@ -420,10 +412,8 @@ const RiderAnalyticsScreen = () => {
 
             <View style={styles.card}>
               <Text style={styles.cardTitle}>
-                Recent Earnings For{' '}
-                {timeRange == 'today'
-                  ? 'Today'
-                  : `The ${timeRange?.toUpperCase()}`}{' '}
+                Latest Credits For{' '}
+                {timeRange == 'today' ? 'Today' : `The ${timeRange}`}{' '}
               </Text>
               {historicalData?.last5Transactions?.length ? (
                 historicalData.last5Transactions.map((txn, index) => (
@@ -757,6 +747,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginBottom: 12,
+    textTransform: 'capitalize',
   },
   chart: {
     borderRadius: 12,

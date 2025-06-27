@@ -12,9 +12,9 @@ import {
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useNavigation} from '@react-navigation/native';
 import {PaystackProvider} from 'react-native-paystack-webview';
-import {useVerifyWalletFundingMutation} from '../../store/walletApi';
+import {useVerifyWalletFundingMutation} from '../../../store/walletApi';
 import {useSelector} from 'react-redux';
-import PaystackPayment from '../../components/paystackPayment';
+import PaystackPayment from '../../../components/paystackPayment';
 
 const WalletFundScreen = () => {
   const navigation: any = useNavigation();
@@ -217,4 +217,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
 export default WalletFundScreen;

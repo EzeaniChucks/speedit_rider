@@ -18,15 +18,13 @@ import {
   Divider,
   Badge,
   Icon,
-  View,
   // useToast,
 } from 'native-base';
 import Ionicons from '@react-native-vector-icons/ionicons';
-import MapView, {Marker, Polyline} from 'react-native-maps';
 import {
   useAcceptOrderMutation,
   useGetOrderDetailsQuery,
-} from '../store/ordersApi';
+} from '../../store/ordersApi';
 import {useSelector} from 'react-redux';
 import {skipToken} from '@reduxjs/toolkit/query';
 import Ionicon from '@react-native-vector-icons/ionicons';

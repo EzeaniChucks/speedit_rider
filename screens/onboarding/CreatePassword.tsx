@@ -12,7 +12,11 @@ import {
 import {Box} from 'native-base';
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useDispatch, useSelector} from 'react-redux';
-import {registerUser, resetAuthState, clearAuthError} from '../../store/authSlice'; // Adjust path
+import {
+  registerUser,
+  resetAuthState,
+  clearAuthError,
+} from '../../store/authSlice'; // Adjust path
 import {TextInput as PaperTextInput} from 'react-native-paper'; // Import PaperTextInput
 import {AppDispatch} from '../../store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -49,23 +53,20 @@ const CreatePasswordScreen = ({navigation}: {navigation: any}) => {
     // No need to return a cleanup function that does the same if you want it only on mount
   }, [dispatch]);
 
-  useEffect(() => {
-    if (isRegistered) {
-      Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('AccountCreatedScreen');
-      dispatch(resetAuthState()); // Reset after navigation and success
-    }
-  }, [isRegistered, navigation, dispatch]);
+  // useEffect(() => {
+  //   if (isRegistered) {
+  //   }
+  // }, [isRegistered, navigation, dispatch]);
 
-  useEffect(() => {
-    if (error) {
-      Alert.alert(
-        'Registration Error',
-        error.message || 'An unknown error occurred.',
-      );
-      dispatch(clearAuthError());
-    }
-  }, [error, dispatch]);
+  // useEffect(() => {
+  //   if (error) {
+  //     Alert.alert(
+  //       'Registration Error',
+  //       error.message || 'An unknown error occurred.',
+  //     );
+  //     dispatch(clearAuthError());
+  //   }
+  // }, [error, dispatch]);
 
   const fcmToken = useSelector((state: any) => state.auth.fcmToken);
 
@@ -151,12 +152,27 @@ const CreatePasswordScreen = ({navigation}: {navigation: any}) => {
       //   ['@user_is_rider', 'true'],
       //   ['@rider_onboarding_step', 'basic_info']
       // ]);
-      
+
       // After completing each step, update the progress
       // await AsyncStorage.setItem('@rider_onboarding_step', 'next_step_name');
 
       // When completely done:
       // await AsyncStorage.setItem('@rider_onboarding_step', 'completed');
+
+      Alert.alert('Success', 'Account created successfully!');
+      navigation.navigate('AccountCreatedScreen');
+      dispatch(resetAuthState()); // Reset after navigation and success
+    } else {
+      if (result?.payload && result?.payload?.error) {
+        // console.log('from create password screen:', result?.payload.error);
+        Alert.alert(
+          'Oops! Lets try that again',
+          typeof result.payload.error == 'string'
+            ? result.payload.error
+            : 'Something went wrong with registration. Please try again or contact support at 08067268692',
+        );
+        dispatch(clearAuthError());
+      }
     }
   };
 

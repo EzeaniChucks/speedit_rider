@@ -4,6 +4,7 @@ import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
 const BASE_API_URL = 'https://speedit-server.onrender.com/v1/api/riders/';
 const REGISTER_API_URL = `${BASE_API_URL}register/`;
 const LOGIN_API_URL = `${BASE_API_URL}login/`;
+const UPDATE_TOKEN_API_URL = `${BASE_API_URL}fcm-token/`;
 
 // --- Type Definitions ---
 
@@ -74,6 +75,7 @@ interface LoginSuccessResponse {
 interface RegisterSuccessResponse {
   success: boolean;
   message?: string;
+  error?: string;
   data?: any; // Or a more specific type if registration returns user data
 }
 
@@ -174,6 +176,58 @@ export const loginUser = createAsyncThunk<
     });
   }
 });
+
+export const updateFcmToken = createAsyncThunk(
+  'auth/updateFcmToken',
+  async (
+    {fcmToken, token}: {fcmToken: string; token: string},
+    {rejectWithValue},
+  ) => {
+    const requestOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({token: fcmToken}),
+    };
+    try {
+      const response = await fetch(UPDATE_TOKEN_API_URL, requestOptions);
+      const resultText = await response.text(); // Read response as text first
+      let resultData;
+      try {
+        resultData = JSON.parse(resultText); // Try to parse as JSON
+        // console.log('Parsed update fcm token response:', resultData);
+      } catch (e) {
+        // If parsing fails but response was not ok, use text as message
+        if (!response.ok) {
+          return rejectWithValue({
+            message: resultText || `FCMToken update failed: ${response.status}`,
+          });
+        }
+        // This case is unlikely for a successful login, but handle it
+        return rejectWithValue({
+          message: 'FCmtOKEN UPDATE response was not valid JSON.',
+        });
+      }
+
+      if (!response.ok) {
+        return rejectWithValue(
+          (resultData as ApiErrorPayload) || {
+            message: `FCMToken update failed: ${response.status}`,
+          },
+        );
+      }
+      return resultData as LoginSuccessResponse;
+    } catch (error: any) {
+      return rejectWithValue({
+        message:
+          error.message ||
+          'An unexpected error occurred while updating fcmtokem',
+      });
+    }
+  },
+);
 
 // --- Auth Slice Definition ---
 
@@ -351,7 +405,7 @@ const authSlice = createSlice({
         }
       })
       .addCase(loginUser.rejected, (state, action) => {
-        console.log(action);
+        // console.log(action);
         state.loading = 'idle';
         state.error = action.payload || {
           data: 'Login failed. Please check your credentials.',
@@ -361,6 +415,23 @@ const authSlice = createSlice({
         state.token = null;
         state.isProfileSetupComplete = false;
       });
+    // // Update fcmtoken
+    // .addCase(updateFcmToken.pending, state => {
+    //   state.loading = 'pending';
+    //   state.error = null;
+    // })
+    // .addCase(updateFcmToken.fulfilled, (state, action) => {
+    //   state.loading = 'idle';
+    //   state.error = null;
+    // })
+    // .addCase(updateFcmToken.rejected, (state, action) => {
+    //   state.loading = 'idle';
+    //   state.error = {
+    //     data:
+    //       String(action?.payload?.error) ||
+    //       'Login failed. Please check your credentials.',
+    //   };
+    // });
   },
 });
 

@@ -1,10 +1,10 @@
-interface TransactionMetadataCustomField {
+export interface TransactionMetadataCustomField {
     value: string;
     display_name: string;
     variable_name: string;
   }
   
-  interface TransactionMetadata {
+  export interface TransactionMetadata {
     id: string;
     purpose: string;
     entityId: string;
@@ -13,7 +13,7 @@ interface TransactionMetadataCustomField {
     custom_fields?: TransactionMetadataCustomField[];
   }
   
-  interface Transaction {
+  export interface Transaction {
     id: string;
     entityId: string;
     entityType: string;
@@ -29,7 +29,7 @@ interface TransactionMetadataCustomField {
     completedAt: string | null; // ISO 8601 date string or null
   }
   
-  interface TransactionsResponse {
+  export interface TransactionsResponse {
     success: boolean;
     data: {
       transactions: Transaction[];

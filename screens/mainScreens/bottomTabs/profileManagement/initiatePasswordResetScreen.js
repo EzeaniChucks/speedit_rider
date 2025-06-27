@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useNavigation} from '@react-navigation/native';
-import {useInitiatePasswordResetMutation} from '../../store/profileApi';
+import {useInitiatePasswordResetMutation} from '../../../../store/profileApi';
 import {TextInput} from 'react-native-paper';
 import { useSelector } from 'react-redux';
 

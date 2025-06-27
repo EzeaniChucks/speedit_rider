@@ -16,11 +16,11 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import { NativeBaseProvider } from 'native-base';
-import { extendTheme } from 'native-base';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import RootNavigation from './rootNav';
-import { NavigationContainer } from '@react-navigation/native';
+import {NativeBaseProvider} from 'native-base';
+import {extendTheme} from 'native-base';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import RootNavigation from './rootNavigator';
+// import RootNavigation from './rootNav';
 function App(): React.JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -29,13 +29,10 @@ function App(): React.JSX.Element {
   };
 
   return (
-     
-    
     <>
-    {/* <StatusBar hidden={true} /> */}
-    <RootNavigation />
-   
-  </>
+      {/* <StatusBar hidden={true} /> */}
+      <RootNavigation />
+    </>
   );
 }
 

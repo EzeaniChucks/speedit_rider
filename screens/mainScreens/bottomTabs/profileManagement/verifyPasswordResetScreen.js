@@ -14,7 +14,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {
   useVerifyPasswordResetMutation,
   useResendVerificationCodeMutation,
-} from '../../store/profileApi';
+} from '../../../../store/profileApi';
 import {TextInput} from 'react-native-paper';
 
 const VerifyPasswordResetScreen = () => {

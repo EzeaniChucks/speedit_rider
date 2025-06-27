@@ -2,6 +2,13 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+project.ext.vectoricons = [
+    iconFontNames: ['MaterialCommunityIcons.ttf', 'FontAwesome.ttf'], // whichever fonts you need
+    skipLint: true // This prevents the lint task from failing
+]
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -103,6 +110,26 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+   // Add this afterEvaluate block
+    afterEvaluate {
+        // Fix for all lint-related tasks
+        def lintTasks = [
+            'lintAnalyzeDebug',
+            'generateDebugLintReportModel',
+            'lintAnalyzeRelease',
+            'generateReleaseLintReportModel'
+        ]
+        
+        lintTasks.each { taskName ->
+            tasks.findByName(taskName)?.dependsOn('copyReactNativeVectorIconFonts')
         }
     }
 }

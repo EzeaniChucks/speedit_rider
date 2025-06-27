@@ -15,7 +15,7 @@ import {
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
-import axiosInstance from '../../store/instance';
+import axiosInstance from '../../../store/instance';
 
 const WithdrawalScreen = () => {
   const navigation: any = useNavigation();

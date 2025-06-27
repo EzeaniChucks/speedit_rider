@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,19 +11,23 @@ import {
 } from 'react-native';
 import Icon from '@react-native-vector-icons/ionicons';
 import FontAwesome from '@react-native-vector-icons/fontawesome6';
-import {navigate} from '../NavigationService';
+import {navigate} from '../../../NavigationService';
 import {
   useGetWalletBalanceQuery,
   useGetWalletTransactionsQuery,
-} from '../store/ordersApi';
-import {formatDate} from '../util/date';
-import UserProfileCard from '../components/userProfileCard';
+} from '../../../store/ordersApi';
+import {formatDate} from '../../../util/date';
+import UserProfileCard from '../../../components/userProfileCard';
 import {useFocusEffect} from '@react-navigation/native';
-import { formatCurrency } from '../util/helpers';
+import {formatCurrency} from '../../../util/helpers';
+import {useDispatch, useSelector} from 'react-redux';
+import {updateFcmToken} from '../../../store/authSlice';
 
 const DashboardScreen = () => {
   // const {user} = useSelector(state => state.auth);
   const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
+  const {fcmToken, token} = useSelector(state => state.auth);
 
   // Add refetch functions from the queries
   const {
@@ -61,6 +65,15 @@ const DashboardScreen = () => {
       }
     }, [wallet]),
   );
+
+  useEffect(() => {
+    if (fcmToken && token) {
+      console.log('from my hone screen', fcmToken, token);
+      //send rider's fcmToken to server during every Home Screen visit
+      dispatch(updateFcmToken({fcmToken, token}));
+      // This is necessary to keep database value updated in case user changes devices
+    }
+  }, [fcmToken, token]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -202,16 +215,27 @@ const DashboardScreen = () => {
                       {formatDate(item.createdAt)}
                     </Text>
                   </View>
-                  <Text
-                    style={
-                      item.type === 'credit'
-                        ? styles.transactionCreditAmount
-                        : styles.transactionDebitAmount
-                    }>
-                    {item.type === 'credit'
-                      ? `₦${item?.amount}`
-                      : `- ₦${item.amount}`}
-                  </Text>
+                  <View style={styles.transactionInfoContainer}>
+                    <Text
+                      style={
+                        item.type === 'credit'
+                          ? styles.transactionCreditAmount
+                          : styles.transactionDebitAmount
+                      }>
+                      {item.type === 'credit'
+                        ? `₦${item?.amount}`
+                        : `- ₦${item.amount}`}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'gray',
+                        textTransform: 'capitalize',
+                        marginRight: 3,
+                        fontSize: 12,
+                      }}>
+                      {item?.status}
+                    </Text>
+                  </View>
                 </View>
               ))}
             </View>
@@ -455,12 +479,18 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: 15,
     fontWeight: '600',
+    textTransform: 'capitalize',
     color: '#212121',
     marginBottom: 2,
   },
   transactionDate: {
     fontSize: 12,
     color: '#757575',
+  },
+  transactionInfoContainer: {
+    display: 'flex',
+    alignItems: 'flex-end',
+    paddingLeft: 3,
   },
   transactionCreditAmount: {
     fontSize: 16,

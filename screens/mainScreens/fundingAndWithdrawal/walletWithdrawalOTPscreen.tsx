@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import axiosInstance from '../../store/instance';
+import axiosInstance from '../../../store/instance';
 
 const WithdrawalOTPScreen = () => {
   const navigation: any = useNavigation();

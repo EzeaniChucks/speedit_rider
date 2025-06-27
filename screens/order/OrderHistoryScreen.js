@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
-import {View, StyleSheet, FlatList, ActivityIndicator} from 'react-native';
+import React from 'react';
+import {StyleSheet, FlatList, ActivityIndicator} from 'react-native';
 import {Text, Box, VStack, HStack, Pressable, Badge} from 'native-base';
 import Icon from '@react-native-vector-icons/ionicons';
-import {useGetOrderHistoryQuery} from '../store/ordersApi';
+import Header from '../../components/header';
+import { useGetOrderHistoryQuery } from '../../store/ordersApi';
 
 const OrderHistoryScreen = ({navigation}) => {
   const {
@@ -132,9 +133,7 @@ const OrderHistoryScreen = ({navigation}) => {
 
   return (
     <Box flex={1} p={4} bg="gray.50">
-      <Text fontSize="2xl" fontWeight="bold" mb={4} color="primary.800">
-        Order History
-      </Text>
+      <Header title="Order History" />
 
       {orderHistory?.data?.data?.length === 0 ? (
         <Box flex={1} justifyContent="center" alignItems="center">

@@ -12,8 +12,7 @@ import {
 import AntIcons from '@react-native-vector-icons/ant-design';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
-// import {riderApi} from '../../store/api';
-import {useGetRiderProfileQuery} from '../../store/profileApi';
+import {useGetRiderProfileQuery} from '../../../../store/profileApi';
 
 const RiderProfileScreen = () => {
   const navigation = useNavigation();

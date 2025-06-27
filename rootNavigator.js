@@ -2,8 +2,8 @@ import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from './screens/onboarding/LoginScreen';
-import OrderListScreen from './screens/OrderHistoryScreen';
-import OrderDetailsScreen from './screens/OrderDetailsScreen';
+// import OrderListScreen from './screens/OrderHistoryScreen';
+import OrderDetailsScreen from './screens/order/OrderDetailsScreen';
 import SettingsScreen from './SettingsScreen';
 // import CreateAccount from './screens/onboarding/index'; // Adjust the path
 import BottomTabNavigator from './nav/index'; // Adjust the path
@@ -23,7 +23,7 @@ import PickupScreen from './screens/pickup';
 import OrderPicked from './screens/ConfirmOrder';
 import TrackCustomer from './screens/TrackCustomer';
 import DeliveryScreen from './screens/DeliveryScreen';
-import {store} from './store/';
+import {store} from './store';
 import {Alert, Platform, PermissionsAndroid} from 'react-native';
 //import { PersistGate } from 'redux-persist/integration/react'; // If using redux-persist
 import {Provider as ReduxProvider, useDispatch} from 'react-redux';
@@ -35,22 +35,22 @@ import AvailableOrdersScreen from './screens/avalOrders';
 import AvailableRidersScreen from './screens/availDash';
 import OrderProgressScreen from './screens/OrderProgressionScreen';
 import DeliveryAcknowledgement from './screens/DeliveryAcknowledgement';
-import EditProfileScreen from './screens/profile/userProfileEditScreen';
-import InitiatePasswordResetScreen from './screens/profile/initiatePasswordResetScreen';
-import VerifyPasswordResetScreen from './screens/profile/verifyPasswordResetScreen';
-import PasswordResetSuccessScreen from './screens/profile/passwordResetSuccessScreen';
-import WalletFundScreen from './screens/fundingAndWithdrawal/walletFundScreen';
-import PaymentSuccessScreen from './screens/fundingAndWithdrawal/walletFundSuccessScreen';
-import WithdrawalScreen from './screens/fundingAndWithdrawal/walletWithdrawalScreen';
-import WithdrawalSuccessScreen from './screens/fundingAndWithdrawal/walletWithdrawalSuccess';
-import WithdrawalOTPScreen from './screens/fundingAndWithdrawal/walletWithdrawalOTPscreen';
 import TransactionHistoryScreen from './screens/transactionsHistory';
 import ForgotPasswordScreen from './screens/forgotPassword/forgotPasswordScreen';
 import ForgotPasswordCompleteScreen from './screens/forgotPassword/resetPasswordScreen';
 import SplashScreen from './screens/onboarding/splash';
-import {colors} from './theme/colors';
 import RegistrationPersonalInformationScreen from './screens/onboarding/Registration_Personal_Info';
 import RegistrationVehicleInformationScreen from './screens/onboarding/Registration_Vehicle_Info';
+import WithdrawalScreen from './screens/mainScreens/fundingAndWithdrawal/walletWithdrawalScreen';
+import WalletFundScreen from './screens/mainScreens/fundingAndWithdrawal/walletFundScreen';
+import PaymentSuccessScreen from './screens/mainScreens/fundingAndWithdrawal/walletFundSuccessScreen';
+import WithdrawalOTPScreen from './screens/mainScreens/fundingAndWithdrawal/walletWithdrawalOTPscreen';
+import WithdrawalSuccessScreen from './screens/mainScreens/fundingAndWithdrawal/walletWithdrawalSuccess';
+import EditProfileScreen from './screens/mainScreens/bottomTabs/profileManagement/userProfileEditScreen';
+import InitiatePasswordResetScreen from './screens/mainScreens/bottomTabs/profileManagement/initiatePasswordResetScreen';
+import VerifyPasswordResetScreen from './screens/mainScreens/bottomTabs/profileManagement/verifyPasswordResetScreen';
+import PasswordResetSuccessScreen from './screens/mainScreens/bottomTabs/profileManagement/passwordResetSuccessScreen';
+import OrderHistoryScreen from './screens/order/OrderHistoryScreen';
 
 const Stack = createStackNavigator();
 
@@ -314,7 +314,7 @@ const RootNavigation = () => {
               <Stack.Screen name="MainApp" component={BottomTabNavigator} />
               {/* Order Management */}
               <Stack.Group>
-                <Stack.Screen name="OrderList" component={OrderListScreen} />
+                <Stack.Screen name="OrderList" component={OrderHistoryScreen} />
                 <Stack.Screen name="OrderPicked" component={OrderPicked} />
                 <Stack.Screen
                   name="OrderDetails"

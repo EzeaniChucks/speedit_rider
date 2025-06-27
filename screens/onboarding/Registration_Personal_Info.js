@@ -35,14 +35,39 @@ const RegistrationPersonalInformationScreen = ({navigation}) => {
       );
       return;
     }
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       Alert.alert('Validation Error', 'Please enter a valid email address.');
       return;
     }
-    if (!/^\d{10,11}$/.test(phone)) {
+
+    // Remove all non-digit characters first
+    const cleanedPhone = phone.replace(/\D/g, '');
+
+    // Check if phone starts with 0, 234, or nothing
+    let formattedPhone;
+    if (cleanedPhone.startsWith('0')) {
+      // Format: 080... → +23480...
+      formattedPhone = `+234${cleanedPhone.substring(1)}`;
+    } else if (cleanedPhone.startsWith('234')) {
+      // Format: 23480... → +23480...
+      formattedPhone = `+${cleanedPhone}`;
+    } else if (cleanedPhone.length === 10) {
+      // Format: 807... → +234807...
+      formattedPhone = `+234${cleanedPhone}`;
+    } else {
       Alert.alert(
         'Validation Error',
-        'Please enter a valid phone number (10 or 11 digits after +234).',
+        'Please enter a valid Nigerian phone number (e.g. 08012345678, 2348012345678, or 8012345678).',
+      );
+      return;
+    }
+
+    // Final validation - should be +234 followed by 10 digits (no leading zero)
+    if (!/^\+234[1-9]\d{9}$/.test(formattedPhone)) {
+      Alert.alert(
+        'Validation Error',
+        'Please enter a valid Nigerian phone number (10 digits after +234 without leading zero).',
       );
       return;
     }
@@ -51,7 +76,7 @@ const RegistrationPersonalInformationScreen = ({navigation}) => {
       firstName,
       lastName,
       email,
-      phone: `+234${phone}`,
+      phone: formattedPhone,
       residentialAddress,
     };
 
@@ -223,7 +248,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   phoneCode: {
-    height: 56,
+    height: 50,
     width: 70,
     borderColor: '#e0e0e0',
     borderWidth: 1,
